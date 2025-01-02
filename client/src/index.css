@@ -24,8 +24,7 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  /* Remove the existing flex and place-items settings as we'll center everything in .app-container */
   min-width: 320px;
   min-height: 100vh;
 }
@@ -52,6 +51,26 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Add these styles or modify existing ones in your component-specific CSS */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center vertically */
+  align-items: center;     /* Center horizontally */
+  height: 100vh;
+  text-align: center;
+}
+
+/* If you have specific styles for other elements, ensure they don't conflict with centering */
+.explorer-text, .search-container {
+  /* Any specific styles here */
+}
+
+.footer {
+  margin-top: auto;
+  /* Other footer styles if needed */
 }
 
 @media (prefers-color-scheme: light) {
