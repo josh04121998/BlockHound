@@ -9,14 +9,14 @@
         }
       },
       {
-        "src": "api/portfolio.js",
+        "src": "server/portfolio.js",
         "use": "@vercel/node"
       }
     ],
     "routes": [
       {
-        "src": "/api/portfolio",
-        "dest": "/api/portfolio.js"
+        "src": "/server/portfolio",
+        "dest": "/server/portfolio.js"
       },
       {
         "src": "/(.*)",
