@@ -1,6 +1,6 @@
+require("dotenv").config(); // Load environment variables for local development
 const { default: Moralis } = require("moralis");
 const express = require("express");
-const path = require("path");
 
 const app = express();
 
@@ -57,7 +57,7 @@ app.get("/api/portfolio", async (req, res) => {
   }
 });
 
-// Vercel expects an exported handler function for serverless functions
+// Export the handler to be used by Vercel's serverless environment
 module.exports = (req, res) => {
   app(req, res);  // Process the request with the express app
 };
