@@ -4,18 +4,8 @@ const path = require("path");
 
 const app = express();
 
-// Initialize Moralis
-async function initializeMoralis() {
-  try {
-    await Moralis.start({
-      apiKey: process.env.MORALIS_API_KEY,
-    });
-    console.log("Moralis initialized successfully.");
-  } catch (error) {
-    console.error("Failed to initialize Moralis:", error);
-    process.exit(1); // Exit if Moralis fails to initialize
-  }
-}
+// Initialize Moralis globally to avoid re-initialization on every request
+let isMoralisInitialized = false;
 
 // Portfolio endpoint
 app.get("/api/portfolio", async (req, res) => {
@@ -26,6 +16,15 @@ app.get("/api/portfolio", async (req, res) => {
   }
 
   try {
+    if (!isMoralisInitialized) {
+      // Initialize Moralis only once
+      await Moralis.start({
+        apiKey: process.env.MORALIS_API_KEY,
+      });
+      isMoralisInitialized = true;
+      console.log("Moralis initialized successfully.");
+    }
+
     // Fetch portfolio data
     const [netWorthResponse, activeChainsResponse, tokenBalancesPriceResponse] = await Promise.all([
       Moralis.EvmApi.wallets.getWalletNetWorth({
@@ -58,14 +57,7 @@ app.get("/api/portfolio", async (req, res) => {
   }
 });
 
-// Vercel requires that we export a handler function to process requests
+// Vercel expects an exported handler function for serverless functions
 module.exports = (req, res) => {
-  // Initialize Moralis if it's not done already
-  if (!Moralis.CoreManager.isInitialized()) {
-    initializeMoralis().then(() => {
-      app(req, res); // Handle the request
-    });
-  } else {
-    app(req, res);
-  }
+  app(req, res);  // Process the request with the express app
 };
