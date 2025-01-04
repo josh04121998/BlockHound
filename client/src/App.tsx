@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import './App.css'; // Your custom CSS
-import WalletInfo from './WalletInfo'; // Import your new component
+import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
+import { useData } from './DataContext'; // Import the custom hook
+import WalletInfo from './WalletInfo'; // Import your WalletInfo component
 
 const App: React.FC = () => {
-  const [walletInfo, setWalletInfo] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { globalDataCache, setGlobalDataCache } = useData(); // Access the cache
   const [walletAddress, setAddress] = useState('');
-  const [showWalletInfo, setShowWalletInfo] = useState(false); // Track whether wallet info should be displayed
+  const [isLoading, setIsLoading] = useState(false);
+  const [showWalletInfo, setShowWalletInfo] = useState(false);
+
+  console.log(globalDataCache);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Any client-side logic for localStorage or window-based operations
+      const savedWalletAddress = localStorage.getItem('walletAddress');
+      if (savedWalletAddress) {
+        setAddress(savedWalletAddress);
+      }
+    }
+  }, []);
 
   const handleCheckWallet = async () => {
     if (!walletAddress) {
@@ -15,9 +28,26 @@ const App: React.FC = () => {
       return;
     }
 
+    // Save the current wallet address to the cache and localStorage
+    setGlobalDataCache((prevCache) => ({
+      ...prevCache,
+      walletAddress: walletAddress, // Save the current wallet address
+    }));
+
+    // Save wallet address to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('walletAddress', walletAddress);
+    }
+
+    // Check if wallet data is already in the cache
+    const cachedData = globalDataCache.wallets?.[walletAddress];
+    if (cachedData) {
+      setShowWalletInfo(true);
+      return; // Data already in cache, no need to fetch again
+    }
+
     setIsLoading(true);
-    setWalletInfo(null); // Clear any previous data
-    setShowWalletInfo(false); // Hide wallet info until it's fetched
+    setShowWalletInfo(false);
 
     try {
       const response = await fetch(`/api/portfolio?address=${encodeURIComponent(walletAddress)}`);
@@ -25,49 +55,63 @@ const App: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setWalletInfo(JSON.stringify(data, null, 2)); // Format the data as a string for display
+
+      // Store wallet data in the cache
+      setGlobalDataCache((prevCache) => ({
+        ...prevCache,
+        wallets: {
+          ...prevCache.wallets,
+          [walletAddress]: data,
+        },
+      }));
+
+      setShowWalletInfo(true);
     } catch (error) {
       if (error instanceof Error) {
-        setWalletInfo(`Error fetching wallet information: ${error.message}`);
+        alert(`Error fetching wallet information: ${error.message}`);
       } else {
-        setWalletInfo('An unexpected error occurred');
+        alert('An unexpected error occurred');
       }
     } finally {
       setIsLoading(false);
-      setShowWalletInfo(true); // Show wallet info after data is fetched
     }
   };
 
   return (
     <div className="app-container">
-      {!showWalletInfo ? (
-        <div className="content-wrapper">
-          <h1 className="header">BlockHound</h1>
-          <p className="explorer-text">
-            Explore token balances, NFT holdings, activity, and insights for any EVM wallet
-          </p>
-          <div className="search-container">
-            <input
-              type="text"
-              value={walletAddress}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Enter EVM address or ENS domain"
-              className="form-control"
-            />
-            <button
-              className="btn btn-primary"
-              onClick={handleCheckWallet}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Loading...' : 'Check Wallet'}
-            </button>
-          </div>
-        </div>
-      ) : (
-        // Display WalletInfo component once data is fetched
-        <WalletInfo walletData={walletInfo} />
-      )}
-      {isLoading && (
+      <div className="content-wrapper">
+        {/* Only show this part if wallet info hasn't been shown */}
+        {!showWalletInfo && (
+          <>
+            <h1 className="header">BlockHound</h1>
+            <p className="explorer-text">
+              Explore token balances, NFT holdings, activity, and insights for any EVM wallet
+            </p>
+            <div className="search-container">
+              <input
+                type="text"
+                value={walletAddress}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter EVM address or ENS domain"
+                className="form-control"
+              />
+              <button
+                className="btn btn-primary"
+                onClick={handleCheckWallet}
+                disabled={isLoading}
+              >
+                {isLoading ? 'Loading...' : 'Check Wallet'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Now, WalletInfo reads directly from the cache */}
+      {showWalletInfo && <WalletInfo />}
+      
+      {/* Show loading spinner only if data is still being fetched */}
+      {isLoading && !showWalletInfo && (
         <div className="loading-overlay">
           <div className="loading-spinner"></div>
         </div>
