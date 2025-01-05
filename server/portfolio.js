@@ -1,9 +1,9 @@
 require("dotenv").config(); // Load environment variables for local development
 const { default: Moralis } = require("moralis");
 const express = require("express");
-
+const fs = require('fs');
 const app = express();
-
+const filePath = './server/res.json';
 // Initialize Moralis globally to avoid re-initialization on every request
 let isMoralisInitialized = false;
 
@@ -16,41 +16,49 @@ app.get("/api/portfolio", async (req, res) => {
   }
 
   try {
-    if (!isMoralisInitialized) {
-      // Initialize Moralis only once
-      await Moralis.start({
-        apiKey: process.env.MORALIS_API_KEY,
-      });
-      isMoralisInitialized = true;
-      console.log("Moralis initialized successfully.");
-    }
+    // if (!isMoralisInitialized) {
+    //   // Initialize Moralis only once
+    //   await Moralis.start({
+    //     apiKey: process.env.MORALIS_API_KEY,
+    //   });
+    //   isMoralisInitialized = true;
+    //   console.log("Moralis initialized successfully.");
+    // }
 
-    // Fetch portfolio data
-    const [netWorthResponse, activeChainsResponse, tokenBalancesPriceResponse] = await Promise.all([
-      Moralis.EvmApi.wallets.getWalletNetWorth({
-        excludeSpam: true,
-        excludeUnverifiedContracts: false,
-        address,
-      }),
-      Moralis.EvmApi.wallets.getWalletActiveChains({
-        address,
-      }),
-      Moralis.EvmApi.wallets.getWalletTokenBalancesPrice({
-        chain: "0x1", // Ethereum Mainnet
-        address,
-        excludeSpam: true,
-        excludeUnverifiedContracts: false,
-        limit: 10,
-      }),
-    ]);
+    // // Fetch portfolio data
+    // const [netWorthResponse, activeChainsResponse, tokenBalancesPriceResponse] = await Promise.all([
+    //   Moralis.EvmApi.wallets.getWalletNetWorth({
+    //     excludeSpam: true,
+    //     excludeUnverifiedContracts: false,
+    //     address,
+    //   }),
+    //   Moralis.EvmApi.wallets.getWalletActiveChains({
+    //     address,
+    //   }),
+    //   Moralis.EvmApi.wallets.getWalletTokenBalancesPrice({
+    //     chain: "0x1", // Ethereum Mainnet
+    //     address,
+    //     excludeSpam: true,
+    //     excludeUnverifiedContracts: false,
+    //     limit: 10,
+    //   }),
+    // ]);
 
-    const combinedResponse = {
-      netWorth: netWorthResponse.raw,
-      activeChains: activeChainsResponse.raw,
-      tokenBalancesPrice: tokenBalancesPriceResponse?.result,
-    };
-
-    res.json(combinedResponse);
+    // const combinedResponse = {
+    //   netWorth: netWorthResponse.raw,
+    //   activeChains: activeChainsResponse.raw,
+    //   tokenBalancesPrice: tokenBalancesPriceResponse?.result,
+    // };
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        console.error('Error reading file:', err);
+        return;
+      }
+    
+        const jsonData = JSON.parse(data);
+        res.json(jsonData);
+    });
+    
   } catch (error) {
     console.error("Error fetching portfolio data:", error);
     res.status(500).json({ error: "An error occurred while fetching portfolio data." });

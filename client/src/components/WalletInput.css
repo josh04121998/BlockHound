@@ -1,0 +1,110 @@
+.wallet-info-container {
+    font-family: 'Arial', sans-serif;
+    background-color: #0b1120; /* Dark background for the entire component */
+    color: #ffffff; /* White text color */
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .container.overview {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .page-header h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .page-header h2 .domains {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .page-header h2 .domains a {
+    text-decoration: none;
+    color: #4287f5; /* Link color */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .page-header h2 .domains a:hover {
+    color: #71a9ff; /* Hover effect for links */
+  }
+  
+  .wallet-card.top {
+    background-color: #1c273d; /* Card background */
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .wallet-card .title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+  
+  .wallet-card .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .wallet-card .col-lg-4, 
+  .wallet-card .col-lg-8 {
+    flex: 1;
+  }
+  
+  .profile-intro .heading {
+    font-size: 14px;
+    color: #a0aec0; /* Subtitle text color */
+  }
+  
+  .profile-intro .big-value {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 5px;
+  }
+  
+  .copy-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .wallet-details h4 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .wallet-details p {
+    margin: 5px 0;
+    font-size: 14px;
+  }
+  
+  .etherscan {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Add responsive design for smaller screens */
+  @media (max-width: 768px) {
+    .wallet-card .row {
+      flex-direction: column;
+    }
+  
+    .wallet-card .col-lg-4, 
+    .wallet-card .col-lg-8 {
+      flex: unset;
+      width: 100%;
+    }
+  }
+  

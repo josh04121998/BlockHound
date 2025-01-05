@@ -16,8 +16,16 @@
       "dest": "/server/portfolio.js"
     },
     {
+      "src": "/(wallets/.*)",
+      "dest": "/client/dist/index.html"  
+    },
+    {
+      "src": "/(wallets)",
+      "dest": "/client/dist/index.html"  
+    },
+    {
       "src": "/(.*)",
-      "dest": "/client/dist/$1"
+      "dest": "/client/dist/$1"  
     }
   ]
 }
