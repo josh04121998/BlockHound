@@ -7,7 +7,7 @@ const WalletInput: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedWalletAddress = localStorage.getItem('walletAddress');
+    const savedWalletAddress = sessionStorage.getItem('walletAddress');
     if (savedWalletAddress) {
       setAddress(savedWalletAddress);
     }
@@ -19,8 +19,8 @@ const WalletInput: React.FC = () => {
       return;
     }
 
-    // Save the wallet address in local storage
-    localStorage.setItem('walletAddress', walletAddress);
+    // Save the wallet address in session storage
+    sessionStorage.setItem('walletAddress', walletAddress);
 
     setIsLoading(true);
 
