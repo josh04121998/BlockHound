@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import * as utilities from './Utilities';
 import CopyToClipboard from './CopyToClipboard';
-import { useData } from '../DataContext'; // Import the useData hook
+import { useData } from '../DataContext';
 import './WalletInfo.css';
 
 const WalletInfo: React.FC = () => {
@@ -69,53 +69,72 @@ const WalletInfo: React.FC = () => {
     return <div className="error-message">No data available for this wallet.</div>;
   }
 
+  // Extract first and last seen dates
+  const activeChain = walletData.activeChains?.active_chains?.[0];
+  const firstSeen = activeChain?.first_transaction?.block_timestamp || 'N/A';
+  const lastSeen = activeChain?.last_transaction?.block_timestamp || 'N/A';
+
+  // Format the timestamp with date and time
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  };
+
   return (
     <div className="container overview">
       <div className="page-header">
-        <h2>
-          Wallet Summary
-          <div className="domains">
-            <div>
-              <a
-                href={`https://etherscan.io/address/${walletAddress}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img className="etherscan" src="/images/etherscan.svg" alt="etherscan" />
-                {utilities.shortAddress(walletAddress)}
-              </a>
-            </div>
+        <h2>Wallet Summary
+        <div className="wallet-info-pill">
+            <Link
+              to={`https://etherscan.io/address/${walletAddress}`}
+              target="_blank"
+              className="wallet-link"
+            >
+              <img
+                className="etherscan"
+                src="/images/etherscan.svg"
+                alt="etherscan"
+              />
+              {utilities.shortAddress(walletAddress)}
+            </Link>
           </div>
         </h2>
       </div>
 
-      <div className="wallet-card top">
-        <div className="title">Wallet Profile</div>
-
-        <div className="row">
-          <div className="col-12 col-md-8 col-lg-6">
-            <div className="row">
-              <div className="col-12">
-                <div className="profile-intro">
-                  <div>
-                    <div className="heading">Address</div>
-                    <div className="big-value networth copy-container">
-                      {utilities.shortAddress(walletAddress)}
-                      <CopyToClipboard valueToCopy={walletAddress || ''} />
-                    </div>
-                  </div>
-                  <div className="col networth">
-                    <div className="heading">Cross-chain Networth</div>
-                    <div className="big-value">
-                      $
-                      {walletData.netWorth?.total_networth_usd
-                        ? utilities.formatPriceNumber(walletData.netWorth.total_networth_usd)
-                        : '0'}
-                    </div>
-                  </div>
-                </div>
-              </div>
+      <div className="wallet-card">
+        {/* Top row */}
+        <div className="row top-row">
+          <div className="section">
+            <div className="heading">Address</div>
+            <div className="value">
+              {utilities.shortAddress(walletAddress)}
+              <CopyToClipboard valueToCopy={walletAddress || ''} />
             </div>
+          </div>
+          <div className="section">
+            <div className="heading">Chain</div>
+            <div className="value">Ethereum</div>
+          </div>
+          <div className="section">
+            <div className="heading">Cross-chain Networth</div>
+            <div className="value">
+              $
+              {walletData.netWorth?.total_networth_usd
+                ? utilities.formatPriceNumber(walletData.netWorth.total_networth_usd)
+                : '0'}
+            </div>
+          </div>
+        </div>
+
+        {/* Second row */}
+        <div className="row second-row">
+          <div className="section">
+            <div className="heading">First Seen</div>
+            <div className="value">{firstSeen !== 'N/A' ? formatTimestamp(firstSeen) : 'N/A'}</div>
+          </div>
+          <div className="section">
+            <div className="heading">Last Seen</div>
+            <div className="value">{lastSeen !== 'N/A' ? formatTimestamp(lastSeen) : 'N/A'}</div>
           </div>
         </div>
       </div>

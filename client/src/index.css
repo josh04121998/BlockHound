@@ -42,6 +42,7 @@ button {
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
+  color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -71,6 +72,16 @@ button:focus-visible {
 .footer {
   margin-top: auto;
   /* Other footer styles if needed */
+}
+
+.copy {
+  padding: 7px;
+  background: transparent;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
 }
 
 @media (prefers-color-scheme: light) {
