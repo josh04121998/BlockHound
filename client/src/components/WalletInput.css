@@ -1,110 +1,99 @@
-.wallet-info-container {
-    font-family: 'Arial', sans-serif;
-    background-color: #0b1120; /* Dark background for the entire component */
-    color: #ffffff; /* White text color */
-    padding: 20px;
-    border-radius: 10px;
+/* Center the content on the screen */
+.wallet-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: #333333;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Title styling */
+.wallet-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333333;
+}
+
+/* Description styling */
+.wallet-description {
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  color: #555555;
+  max-width: 600px;
+}
+
+/* Input and button container with Bootstrap row */
+.wallet-input-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center; /* Center align for smaller devices */
+  width: 100%; /* Ensure the group spans full width */
+}
+
+/* Input field styling */
+.wallet-input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #cccccc;
+  border-radius: 999px; /* Fully rounded input */
+  font-size: 1rem;
+  width: 300px;
+  max-width: 100%; /* Adjust width on smaller devices */
+  transition: border-color 0.2s;
+  background-color: #ffffff;
+  color: black;
+}
+
+.wallet-input:focus {
+  border-color: #0052ff;
+  outline: none;
+}
+
+/* Button styling */
+.wallet-button {
+  background-color: #0052ff; /* Coinbase blue */
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px; /* Fully rounded button */
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.wallet-button:hover {
+  background-color: #003bbf; /* Darker Coinbase blue */
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+  .wallet-input {
+    width: 100%; /* Full width for smaller devices */
   }
-  
-  .container.overview {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+
+  .wallet-button {
+    width: 100%; /* Full width for smaller devices */
+    padding: 0.75rem; /* Adjust padding */
+    text-align: center;
   }
-  
-  .page-header h2 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0;
+
+  .wallet-input-group {
+    flex-direction: column; /* Stack input and button on smaller screens */
+    gap: 1rem;
   }
-  
-  .page-header h2 .domains {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+
+  .wallet-title {
+    font-size: 1.5rem; /* Slightly smaller title */
   }
-  
-  .page-header h2 .domains a {
-    text-decoration: none;
-    color: #4287f5; /* Link color */
-    display: flex;
-    align-items: center;
-    gap: 5px;
+
+  .wallet-description {
+    font-size: 0.9rem; /* Slightly smaller description */
+    max-width: 90%; /* Adjust width to fit smaller screens */
   }
-  
-  .page-header h2 .domains a:hover {
-    color: #71a9ff; /* Hover effect for links */
-  }
-  
-  .wallet-card.top {
-    background-color: #1c273d; /* Card background */
-    padding: 20px;
-    border-radius: 10px;
-  }
-  
-  .wallet-card .title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 15px;
-  }
-  
-  .wallet-card .row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
-  .wallet-card .col-lg-4, 
-  .wallet-card .col-lg-8 {
-    flex: 1;
-  }
-  
-  .profile-intro .heading {
-    font-size: 14px;
-    color: #a0aec0; /* Subtitle text color */
-  }
-  
-  .profile-intro .big-value {
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 5px;
-  }
-  
-  .copy-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .wallet-details h4 {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-  
-  .wallet-details p {
-    margin: 5px 0;
-    font-size: 14px;
-  }
-  
-  .etherscan {
-    width: 20px;
-    height: 20px;
-  }
-  
-  /* Add responsive design for smaller screens */
-  @media (max-width: 768px) {
-    .wallet-card .row {
-      flex-direction: column;
-    }
-  
-    .wallet-card .col-lg-4, 
-    .wallet-card .col-lg-8 {
-      flex: unset;
-      width: 100%;
-    }
-  }
-  
+}

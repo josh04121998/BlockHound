@@ -40,7 +40,6 @@ app.get("/api/portfolio", async (req, res) => {
         address,
         excludeSpam: true,
         excludeUnverifiedContracts: false,
-        limit: 10,
       }),
     ]);
 
