@@ -32,7 +32,7 @@ const WalletInput: React.FC = () => {
           value={walletAddress}
           onChange={(e) => setAddress(e.target.value)}
           className="wallet-input"
-          placeholder="Enter EVM address or ENS domain"
+          placeholder="Enter ethereum address"
         />
         <button onClick={handleCheckWallet} className="wallet-button">
           Check Wallet
