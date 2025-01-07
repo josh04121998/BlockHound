@@ -7,6 +7,16 @@
   background-color: #ffffff; /* White background */
 }
 
+.wallet-card {
+  background-color: #f8f9fa; /* Light gray background for card */
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between; /* Text and chart side-by-side */
+  gap: 20px;
+}
+
 /* Page Header */
 .page-header h2 {
   font-size: 2rem;
@@ -74,84 +84,121 @@
   padding: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   display: flex;
-  flex-direction: column;
+  justify-content: space-between; /* Ensure chart and rows are side by side */
   gap: 20px;
+}
+
+/* Profile Intro */
+.profile-intro {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.profile-intro img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+/* Info Section (Left Side) */
+.info-section {
+  flex: 9; /* Occupy 9 columns in the grid */
+}
+
+.info-section .row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.info-section .col-lg-4 {
+  flex: 1; /* Evenly distribute columns */
+}
+
+.info-section .heading {
+  font-size: 0.85rem;
+  color: #666666;
+  margin-bottom: 8px;
+  font-weight: 500; /* Slightly bold for clarity */
+}
+
+.info-section .big-value {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #333333;
+  display: flex;
+  align-items: center;
+}
+
+.info-section .big-value.copy-container {
+  gap: 8px;
+}
+
+/* Active Chains */
+.info-section .big-value ul {
+  display: flex;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.info-section .big-value ul li img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-bottom: 5px;
+}
+
+.info-section .row + .row {
+  margin-top: 20px; /* Add spacing between the rows */
+}
+
+/* Chart Section (Right Side) */
+.chart-section {
+  flex: 1; /* Allocate space for the chart */
+  display: flex;
+  flex-direction: column; /* Stack header and chart vertically */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  text-align: center;
+}
+
+.chart-header {
+  font-size: 0.85rem; /* Match the font size of .heading */
+  font-weight: 500; /* Medium font weight */
+  color: #666666; /* Match the color of .heading */
+  margin-bottom: 8px; /* Spacing between the header and chart */
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflow if the text exceeds the container */
+  text-overflow: ellipsis; /* Add ellipsis for long text (optional) */
+}
+
+
+.chart-section canvas {
+  width: 100%; /* Let it adapt to parent container width */
+  max-width: 200px; /* Ensure the chart has a fixed maximum size */
 }
 
 /* Rows */
 .row {
   display: flex;
-  flex-wrap: wrap;
   gap: 20px;
-}
-
-.top-row {
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.second-row {
-  justify-content: flex-start;
-  gap: 40px; /* More spacing between items in the second row */
-}
-
-/* Sections */
-.section {
-  flex: 1;
-  min-width: 200px;
-}
-
-.section .heading {
-  font-size: 0.9rem;
-  color: #666666; /* Medium gray for headings */
-  margin-bottom: 8px;
-}
-
-.section .value {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #333333; /* Black for value text */
-  display: flex;
-  align-items: center;
-}
-
-/* Copy-to-clipboard styling */
-.value .copy-btn {
-  background-color: #3ba3e9; /* Light blue for button */
-  color: #ffffff; /* White text on button */
-  border: none;
-  padding: 2px 6px; /* Smaller button size */
-  font-size: 0.8rem; /* Smaller font size */
-  border-radius: 6px; /* Slightly rounded */
-  cursor: pointer;
-  margin-left: 10px;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.value .copy-btn:hover {
-  background-color: #0073e6; /* Darker blue for hover */
+  justify-content: space-between; /* Ensure elements in each row are aligned side by side */
+  flex-wrap: wrap;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .top-row,
-  .second-row {
+  .wallet-card {
+    flex-direction: column; /* Stack text and chart vertically on small screens */
+  }
+
+  .info-section .row {
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
   }
 
-  .section {
-    min-width: 100%;
-  }
-
-  .page-header h2 {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .wallet-info-pill {
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 5px 10px; /* Adjust padding for smaller screens */
+  .chart-section {
+    align-items: flex-start; /* Align chart to the left on smaller screens */
   }
 }

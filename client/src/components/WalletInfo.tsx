@@ -4,6 +4,7 @@ import * as utilities from './Utilities';
 import CopyToClipboard from './CopyToClipboard';
 import { useData } from '../DataContext';
 import './WalletInfo.css';
+import TokenDistributionChart from './TokenDistributionChart';
 
 const WalletInfo: React.FC = () => {
   const { walletAddress } = useParams();
@@ -73,6 +74,10 @@ const WalletInfo: React.FC = () => {
   const activeChain = walletData.activeChains?.active_chains?.[0];
   const firstSeen = activeChain?.first_transaction?.block_timestamp || 'N/A';
   const lastSeen = activeChain?.last_transaction?.block_timestamp || 'N/A';
+  const tokenBalances = walletData.tokenBalancesPrice.map((token: any) => ({
+    name: token.name,
+    portfolio_percentage: token.portfolio_percentage,
+  }));
 
   // Format the timestamp with date and time
   const formatTimestamp = (timestamp: string) => {
@@ -83,18 +88,11 @@ const WalletInfo: React.FC = () => {
   return (
     <div className="container overview">
       <div className="page-header">
-        <h2>Wallet Summary
-        <div className="wallet-info-pill">
-            <Link
-              to={`https://etherscan.io/address/${walletAddress}`}
-              target="_blank"
-              className="wallet-link"
-            >
-              <img
-                className="etherscan"
-                src="/images/etherscan.svg"
-                alt="etherscan"
-              />
+        <h2>
+          Wallet Profile
+          <div className="wallet-info-pill">
+            <Link to={`https://etherscan.io/address/${walletAddress}`} target="_blank" className="wallet-link">
+              <img className="etherscan" src="/images/etherscan.svg" alt="etherscan" />
               {utilities.shortAddress(walletAddress)}
             </Link>
           </div>
@@ -102,22 +100,22 @@ const WalletInfo: React.FC = () => {
       </div>
 
       <div className="wallet-card">
-        {/* Top row */}
-        <div className="row top-row">
-          <div className="section">
+      <div className="info-section">
+        <div className="row">
+          <div className="col-lg-4">
             <div className="heading">Address</div>
-            <div className="value">
+            <div className="big-value networth copy-container">
               {utilities.shortAddress(walletAddress)}
               <CopyToClipboard valueToCopy={walletAddress || ''} />
             </div>
           </div>
-          <div className="section">
+          <div className="col-lg-4">
             <div className="heading">Chain</div>
-            <div className="value">Ethereum</div>
+            <div className="big-value">Ethereum</div>
           </div>
-          <div className="section">
+          <div className="col-lg-4">
             <div className="heading">Cross-chain Networth</div>
-            <div className="value">
+            <div className="big-value">
               $
               {walletData.netWorth?.total_networth_usd
                 ? utilities.formatPriceNumber(walletData.netWorth.total_networth_usd)
@@ -125,20 +123,30 @@ const WalletInfo: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Second row */}
-        <div className="row second-row">
-          <div className="section">
+        <div className="row">
+          <div className="col-lg-4">
             <div className="heading">First Seen</div>
-            <div className="value">{firstSeen !== 'N/A' ? formatTimestamp(firstSeen) : 'N/A'}</div>
+            <div className="big-value">
+              {firstSeen !== 'N/A' ? formatTimestamp(firstSeen) : 'N/A'}
+            </div>
           </div>
-          <div className="section">
+
+          <div className="col-lg-4">
             <div className="heading">Last Seen</div>
-            <div className="value">{lastSeen !== 'N/A' ? formatTimestamp(lastSeen) : 'N/A'}</div>
+            <div className="big-value">
+              {lastSeen !== 'N/A' ? formatTimestamp(lastSeen) : 'N/A'}
+            </div>
           </div>
+          <div className="col-lg-4"></div>
         </div>
       </div>
+
+      <div className="chart-section">
+        <div className="chart-header">Portfolio Breakdown</div>
+        <TokenDistributionChart tokenBalances={tokenBalances} />
+      </div>
     </div>
+  </div>
   );
 };
 
