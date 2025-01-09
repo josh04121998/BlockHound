@@ -5,6 +5,7 @@ import CopyToClipboard from './CopyToClipboard';
 import { useData } from '../DataContext';
 import './WalletInfo.css';
 import TokenDistributionChart from './TokenDistributionChart';
+import TokenHoldingsCard from './TokenHolidingsCard';
 
 const WalletInfo: React.FC = () => {
   const { walletAddress } = useParams();
@@ -146,6 +147,7 @@ const WalletInfo: React.FC = () => {
         <TokenDistributionChart tokenBalances={tokenBalances} />
       </div>
     </div>
+    <TokenHoldingsCard tokenBalances={walletData.tokenBalancesPrice} />
   </div>
   );
 };

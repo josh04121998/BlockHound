@@ -1,0 +1,115 @@
+.wallet-card.token-holdings-card {
+  background-color: #f8f9fa;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow-x: auto; /* Enable horizontal scrolling for the entire card */
+  margin: 0 auto;
+}
+
+.token-list-wrapper {
+  overflow-x: auto; /* Allow horizontal scrolling */
+  margin: 0 auto;
+}
+
+.token-list {
+  width: 100%;
+  display: table; /* Use table display for proper alignment */
+  border-collapse: collapse; /* Remove gaps between cells */
+  margin: 0 auto;
+}
+
+/* Table Header */
+.table-header {
+  display: table-header-group; /* Proper table header behavior */
+  background-color: #f8f9fa; /* Match card background */
+  position: sticky;
+  top: 0; /* Stick to the top during scrolling */
+  z-index: 1; /* Ensure header stays above rows */
+}
+
+.table-header .table-cell {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333333; /* Dark gray text */
+  text-align: left;
+  padding: 10px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+/* Table Body */
+.table-body {
+  display: table-row-group; /* Proper table body behavior */
+}
+
+.table-row {
+  display: table-row; /* Use table row behavior */
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+/* Table Cells */
+.table-cell {
+  display: table-cell; /* Proper table cell behavior */
+  text-align: left;
+  padding: 10px;
+  vertical-align: middle;
+}
+
+/* Token Info */
+.token {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.token-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.token-name {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.token-symbol {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Positive and Negative Change Styles */
+.negative {
+  color: #e84141; /* Red for negative values */
+}
+
+.positive {
+  color: #0bc18d; /* Green for positive values */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .token-list-wrapper {
+    overflow-x: auto; /* Ensure horizontal scrolling for smaller devices */
+  }
+
+  .token-logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  .table-header .table-cell {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+
+  .table-cell {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+}
