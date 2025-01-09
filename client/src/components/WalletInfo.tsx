@@ -115,7 +115,7 @@ const WalletInfo: React.FC = () => {
             <div className="big-value">Ethereum</div>
           </div>
           <div className="col-lg-4">
-            <div className="heading">Cross-chain Networth</div>
+            <div className="heading">Networth</div>
             <div className="big-value">
               $
               {walletData.netWorth?.total_networth_usd
