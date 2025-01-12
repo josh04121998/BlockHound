@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import * as utilities from './Utilities';
 import CopyToClipboard from './CopyToClipboard';
 import { useData } from '../DataContext';
 import './WalletInfo.css';
 import TokenDistributionChart from './TokenDistributionChart';
 import TokenHoldingsCard from './TokenHolidingsCard';
+import Loading from './Loading';
+import Navbar from './Navbar';
+import { Outlet } from 'react-router-dom';
 
 const WalletInfo: React.FC = () => {
   const { walletAddress } = useParams();
   const navigate = useNavigate();
+  const location = useLocation(); // Get current location
   const { globalDataCache, setGlobalDataCache } = useData();
   const [walletData, setWalletData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +64,7 @@ const WalletInfo: React.FC = () => {
   }, [walletAddress, navigate, globalDataCache, setGlobalDataCache]);
 
   if (isLoading) {
-    return <div className="loading-message">Loading wallet data...</div>;
+    return <Loading />;
   }
 
   if (error) {
@@ -71,7 +75,6 @@ const WalletInfo: React.FC = () => {
     return <div className="error-message">No data available for this wallet.</div>;
   }
 
-  // Extract first and last seen dates
   const activeChain = walletData.activeChains?.active_chains?.[0];
   const firstSeen = activeChain?.first_transaction?.block_timestamp || 'N/A';
   const lastSeen = activeChain?.last_transaction?.block_timestamp || 'N/A';
@@ -80,75 +83,87 @@ const WalletInfo: React.FC = () => {
     portfolio_percentage: token.portfolio_percentage,
   }));
 
-  // Format the timestamp with date and time
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
   };
 
+  // Check if current route is PNL
+  const isPNLPage = location.pathname.endsWith('/pnl');
+
   return (
+    <>
+    <Navbar />
     <div className="container overview">
-      <div className="page-header">
-        <h2>
-          Wallet Profile
-          <div className="wallet-info-pill">
-            <Link to={`https://etherscan.io/address/${walletAddress}`} target="_blank" className="wallet-link">
-              <img className="etherscan" src="/images/etherscan.svg" alt="etherscan" />
-              {utilities.shortAddress(walletAddress)}
-            </Link>
-          </div>
-        </h2>
-      </div>
-
-      <div className="wallet-card">
-      <div className="info-section">
-        <div className="row">
-          <div className="col-lg-4">
-            <div className="heading">Address</div>
-            <div className="big-value networth copy-container">
-              {utilities.shortAddress(walletAddress)}
-              <CopyToClipboard valueToCopy={walletAddress || ''} />
-            </div>
-          </div>
-          <div className="col-lg-4">
-            <div className="heading">Chain</div>
-            <div className="big-value">Ethereum</div>
-          </div>
-          <div className="col-lg-4">
-            <div className="heading">Networth</div>
-            <div className="big-value">
-              $
-              {walletData.netWorth?.total_networth_usd
-                ? utilities.formatPriceNumber(walletData.netWorth.total_networth_usd)
-                : '0'}
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-lg-4">
-            <div className="heading">First Seen</div>
-            <div className="big-value">
-              {firstSeen !== 'N/A' ? formatTimestamp(firstSeen) : 'N/A'}
-            </div>
+      {/* Only show the Outlet (PNL content) if on the PNL page */}
+      {isPNLPage ? (
+        <Outlet />
+      ) : (
+        <>
+          <div className="page-header">
+            <h2>
+              Wallet Profile
+              <div className="wallet-info-pill">
+                <Link to={`https://etherscan.io/address/${walletAddress}`} target="_blank" className="wallet-link">
+                  <img className="etherscan" src="/images/etherscan.svg" alt="etherscan" />
+                  {utilities.shortAddress(walletAddress)}
+                </Link>
+              </div>
+            </h2>
           </div>
 
-          <div className="col-lg-4">
-            <div className="heading">Last Seen</div>
-            <div className="big-value">
-              {lastSeen !== 'N/A' ? formatTimestamp(lastSeen) : 'N/A'}
+          <div className="wallet-card">
+            <div className="info-section">
+              <div className="row">
+                <div className="col-lg-4">
+                  <div className="heading">Address</div>
+                  <div className="big-value networth copy-container">
+                    {utilities.shortAddress(walletAddress)}
+                    <CopyToClipboard valueToCopy={walletAddress || ''} />
+                  </div>
+                </div>
+                <div className="col-lg-4">
+                  <div className="heading">Chain</div>
+                  <div className="big-value">Ethereum</div>
+                </div>
+                <div className="col-lg-4">
+                  <div className="heading">Networth</div>
+                  <div className="big-value">
+                    $
+                    {walletData.netWorth?.total_networth_usd
+                      ? utilities.formatPriceNumber(walletData.netWorth.total_networth_usd)
+                      : '0'}
+                  </div>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-lg-4">
+                  <div className="heading">First Seen</div>
+                  <div className="big-value">
+                    {firstSeen !== 'N/A' ? formatTimestamp(firstSeen) : 'N/A'}
+                  </div>
+                </div>
+                <div className="col-lg-4">
+                  <div className="heading">Last Seen</div>
+                  <div className="big-value">
+                    {lastSeen !== 'N/A' ? formatTimestamp(lastSeen) : 'N/A'}
+                  </div>
+                </div>
+                <div className="col-lg-4"></div>
+              </div>
+            </div>
+
+            <div className="chart-section">
+              <div className="chart-header">Portfolio Breakdown</div>
+              <TokenDistributionChart tokenBalances={tokenBalances} />
             </div>
           </div>
-          <div className="col-lg-4"></div>
-        </div>
-      </div>
 
-      <div className="chart-section">
-        <div className="chart-header">Portfolio Breakdown</div>
-        <TokenDistributionChart tokenBalances={tokenBalances} />
-      </div>
+          <TokenHoldingsCard tokenBalances={walletData.tokenBalancesPrice} />
+        </>
+      )}
     </div>
-    <TokenHoldingsCard tokenBalances={walletData.tokenBalancesPrice} />
-  </div>
+    </>
   );
 };
 

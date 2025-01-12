@@ -6,14 +6,18 @@
       "use": "@vercel/static"
     },
     {
-      "src": "server/**/*.js",
+      "src": "api/*.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/portfolio",
-      "dest": "/server/portfolio.js"
+      "dest": "/api/portfolio.js"
+    },
+    {
+      "src": "/api/pnl",
+      "dest": "/api/pnl.js"
     },
     {
       "src": "/(wallets/.*)",

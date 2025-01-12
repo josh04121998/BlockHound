@@ -71,6 +71,21 @@
   background-color: #003bbf; /* Darker Coinbase blue */
 }
 
+/* Error styling for input */
+.wallet-input.input-error {
+  border: 1px solid #e63946; /* Red border for invalid input */
+  outline: none;
+  box-shadow: 0 0 5px rgba(230, 57, 70, 0.5);
+}
+
+/* Error message */
+.error-message {
+  color: #e63946; /* Red text for error messages */
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+
+
 /* Responsive Styling */
 @media (max-width: 768px) {
   .wallet-input {

@@ -5,18 +5,23 @@ import { isAddress } from 'web3-validator';
 
 const WalletInput: React.FC = () => {
   const [walletAddress, setAddress] = useState('');
+  const [error, setError] = useState<string | null>(null); // Track input errors
   const navigate = useNavigate();
 
   const handleCheckWallet = async () => {
-    if (!walletAddress) {
-      alert('Please enter an EVM address or ENS domain.');
-      return;
-    }
-    if(!isAddress(walletAddress)){
-      alert('Please enter a valid EVM address or ENS domain.');
+    setError(null); // Reset any existing error
+
+    if (!walletAddress.trim()) {
+      setError('Please enter an EVM address or ENS domain.');
       return;
     }
 
+    if (!isAddress(walletAddress)) {
+      setError('Please enter a valid EVM address or ENS domain.');
+      return;
+    }
+
+    // Navigate only if input is valid
     await navigate(`/wallets/${walletAddress}`);
   };
 
@@ -31,13 +36,15 @@ const WalletInput: React.FC = () => {
           type="text"
           value={walletAddress}
           onChange={(e) => setAddress(e.target.value)}
-          className="wallet-input"
+          className={`wallet-input ${error ? 'input-error' : ''}`}
           placeholder="Enter ethereum address"
+          aria-label="Ethereum wallet address input"
         />
         <button onClick={handleCheckWallet} className="wallet-button">
           Check Wallet
         </button>
       </div>
+      {error && <p className="error-message">{error}</p>}
     </div>
   );
 };

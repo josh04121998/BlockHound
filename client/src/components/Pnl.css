@@ -1,0 +1,72 @@
+/* PNL Container */
+.pnl-container {
+  margin-top: 20px;
+}
+
+/* PNL Summary Card */
+.pnl-card {
+  background-color: #f8f9fa; /* Light gray background */
+  border-radius: 16px; /* Rounded corners */
+  padding: 20px;
+  display: flex;
+  justify-content: space-between; /* Space between the boxes */
+  gap: 20px; /* Gap between boxes */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* Allow wrapping for smaller screens */
+}
+
+/* Individual PNL Box */
+.pnl-box {
+  flex: 1; /* All boxes take equal space */
+  background-color: #ffffff; /* White background for each box */
+  border-radius: 12px; /* Rounded corners */
+  padding: 15px;
+  display: flex;
+  flex-direction: column; /* Stack heading and value */
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  text-align: center;
+  min-width: 120px; /* Prevent boxes from becoming too narrow */
+}
+
+/* PNL Heading */
+.pnl-heading {
+  font-size: 0.85rem;
+  color: #666666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* PNL Value */
+.pnl-value {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #333333;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pnl-card {
+    flex-direction: column; /* Stack boxes vertically */
+    gap: 15px; /* Add spacing between stacked boxes */
+  }
+
+  .pnl-box {
+    width: 100%; /* Full width for each box */
+    min-width: unset; /* Remove the min-width for smaller screens */
+  }
+}
+
+/* Page Header */
+.page-header h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333333; /* Black text */
+  text-align: left;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Space between title and pill */
+}
