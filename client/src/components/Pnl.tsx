@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import './PNL.css';
 import Loading from './Loading';
+import TokenPnlCard from './TokenPnlCard';
 
 const PNL: React.FC = () => {
   const { walletAddress } = useParams();
@@ -65,6 +66,8 @@ const PNL: React.FC = () => {
           <div className="pnl-value">{profitabilitySummary.total_count_of_trades}</div>
         </div>
       </div>
+      <TokenPnlCard tokens={pnlData.profitability.result} />
+
     </div>
   );
 };
