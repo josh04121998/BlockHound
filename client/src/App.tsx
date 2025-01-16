@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import WalletInput from './components/WalletInput'; // Component for entering wallet address
 import WalletInfo from './components/WalletInfo'; // Component for wallet details
 import Pnl from './components/Pnl';
+import SwapList from './components/SwapsList';
 // import Approvals from './components/Approvals';
 // import History from './components/History';
 // import DeFiPositions from './components/DefiPositions';
@@ -16,6 +17,7 @@ const App: React.FC = () => {
       {/* Dynamic route for wallet details */}
       <Route path="/wallets/:walletAddress" element={<WalletInfo />}>
         <Route path="pnl" element={<Pnl />} />
+        <Route path="swaps" element={<SwapList />} />
         {/* <Route path="defi-positions" element={<DeFiPositions />} />
         <Route path="approvals" element={<Approvals />} />
         <Route path="history" element={<History />} /> */}

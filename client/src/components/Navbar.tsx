@@ -36,6 +36,11 @@ const Navbar: React.FC = () => {
             PNL
           </Link>
         </li>
+        <li>
+          <Link to={`/wallets/${walletAddress}/swaps`} onClick={() => setIsMenuOpen(false)}>
+            Swaps
+          </Link>
+        </li>
       </ul>
     </nav>
   );

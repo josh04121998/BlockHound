@@ -1,0 +1,27 @@
+.swap-table-container {
+    overflow-x: auto;
+  }
+  
+  .swap-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .swap-table th,
+  .swap-table td {
+    padding: 10px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .swap-table th {
+    font-weight: bold;
+  }
+  
+  .token-logo,
+  .exchange-logo {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 5px;
+  }

@@ -20,6 +20,10 @@
       "dest": "/api/pnl.js"
     },
     {
+      "src": "/api/swaps",
+      "dest": "/api/swaps.js"
+    },
+    {
       "src": "/(wallets/.*)",
       "dest": "/client/dist/index.html"  
     },

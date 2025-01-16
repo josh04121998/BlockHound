@@ -9,6 +9,7 @@ import TokenHoldingsCard from './TokenHolidingsCard';
 import Loading from './Loading';
 import Navbar from './Navbar';
 import { Outlet } from 'react-router-dom';
+import SwapList from './SwapsList';
 
 const WalletInfo: React.FC = () => {
   const { walletAddress } = useParams();
@@ -90,6 +91,8 @@ const WalletInfo: React.FC = () => {
 
   // Check if current route is PNL
   const isPNLPage = location.pathname.endsWith('/pnl');
+  const isSwapsPage = location.pathname.endsWith('/swaps');
+  
 
   return (
     <>
@@ -98,6 +101,8 @@ const WalletInfo: React.FC = () => {
       {/* Only show the Outlet (PNL content) if on the PNL page */}
       {isPNLPage ? (
         <Outlet />
+      ) : isSwapsPage ? (
+      <SwapList/>
       ) : (
         <>
           <div className="page-header">

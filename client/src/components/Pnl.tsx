@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import './PNL.css';
 import Loading from './Loading';
 import TokenPnlCard from './TokenPnlCard';
+import * as utilities from './Utilities';
 
 const PNL: React.FC = () => {
   const { walletAddress } = useParams();
@@ -39,8 +40,17 @@ const PNL: React.FC = () => {
 
   return (
     <div className="container pnl-container">
-      <h2>Profit and Loss (PNL)</h2>
-
+      <div className="page-header">
+            <h2>
+            Profit and Loss (PNL)
+              <div className="wallet-info-pill">
+                <Link to={`https://etherscan.io/address/${walletAddress}`} target="_blank" className="wallet-link">
+                  <img className="etherscan" src="/images/etherscan.svg" alt="etherscan" />
+                  {utilities.shortAddress(walletAddress)}
+                </Link>
+              </div>
+            </h2>
+          </div>
       {/* PNL Summary Card */}
       <div className="pnl-card">
         <div className="pnl-box">

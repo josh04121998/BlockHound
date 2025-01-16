@@ -1,0 +1,59 @@
+/* Page Header */
+.page-header h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333333; /* Black text */
+    text-align: left;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Space between title and pill */
+  }
+  
+  /* Wallet Info Pill */
+  .wallet-info-pill {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa; /* Light gray background for pill */
+    border: 1px solid #dcdcdc; /* Subtle border for contrast */
+    border-radius: 20px; /* Rounded edges for pill shape */
+    padding: 5px 15px;
+    gap: 8px; /* Space between address and button */
+  }
+  
+  /* Wallet Link */
+  .wallet-info-pill .wallet-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none; /* Remove underline */
+    font-size: 1rem;
+    color: #0073e6; /* Blue for link text */
+    gap: 8px; /* Space between icon and text */
+    transition: color 0.2s ease-in-out;
+  }
+  
+  .wallet-info-pill .wallet-link:hover {
+    color: #0052cc; /* Darker blue on hover */
+  }
+  
+  /* Etherscan Icon */
+  .wallet-info-pill .etherscan {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* Copy-to-clipboard button inside the pill */
+  .wallet-info-pill .copy-btn {
+    padding: 4px 8px; /* Compact button size */
+    background-color: #3ba3e9; /* Light blue background */
+    border: none;
+    border-radius: 6px; /* Slightly rounded corners */
+    color: #ffffff; /* White text */
+    font-size: 0.9rem; /* Smaller font size */
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .wallet-info-pill .copy-btn:hover {
+    background-color: #0073e6; /* Darker blue for hover */
+  }
