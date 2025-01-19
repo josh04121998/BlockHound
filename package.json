@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/josh04121998/BlockHound#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.47.16",
     "@testing-library/react": "^16.1.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

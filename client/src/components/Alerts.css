@@ -1,0 +1,116 @@
+/* Center the content on the screen */
+.alerts-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #ffffff;
+    color: #333333;
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  /* Title styling */
+  .alerts-page h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #333333;
+  }
+  
+  /* Description (sales pitch) styling */
+  .sales-pitch {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    color: #555555;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+  
+  /* Input and button container */
+  .email-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%; /* Full width container */
+  }
+  
+  /* Input field styling */
+  .email-form input[type='email'] {
+    padding: 0.75rem 1rem;
+    border: 1px solid #cccccc;
+    border-radius: 999px; /* Fully rounded input */
+    font-size: 1rem;
+    width: 300px;
+    max-width: 100%; /* Adjust width on smaller devices */
+    transition: border-color 0.2s;
+    background-color: #ffffff;
+    color: #333333;
+  }
+  
+  .email-form input[type='email']:focus {
+    border-color: #0052ff;
+    outline: none;
+  }
+  
+  /* Button styling */
+  .email-form button[type='submit'] {
+    background-color: #0052ff; /* Coinbase blue */
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px; /* Fully rounded button */
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .email-form button[type='submit']:hover {
+    background-color: #003bbf; /* Darker Coinbase blue */
+  }
+  
+  /* Thank you message styling */
+  .thank-you-message {
+    font-size: 1.2rem;
+    color: #28a745;
+    margin-top: 20px;
+  }
+  
+  /* Error styling for input */
+  .email-form input.input-error {
+    border: 1px solid #e63946; /* Red border for invalid input */
+    outline: none;
+    box-shadow: 0 0 5px rgba(230, 57, 70, 0.5);
+  }
+  
+  /* Error message */
+  .error-message {
+    color: #e63946; /* Red text for error messages */
+    font-size: 0.9rem;
+    margin-top: 8px;
+  }
+  
+  /* Responsive Styling */
+  @media (max-width: 768px) {
+    .email-form input[type='email'] {
+      width: 100%; /* Full width for smaller devices */
+    }
+  
+    .email-form button[type='submit'] {
+      width: 100%; /* Full width for smaller devices */
+      padding: 0.75rem; /* Adjust padding */
+      text-align: center;
+    }
+  
+    .alerts-page h1 {
+      font-size: 2rem; /* Slightly smaller title */
+    }
+  
+    .sales-pitch {
+      font-size: 1rem; /* Slightly smaller description */
+      max-width: 90%; /* Adjust width to fit smaller screens */
+    }
+  }
+  

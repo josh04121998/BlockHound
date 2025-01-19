@@ -10,6 +10,7 @@ import Loading from './Loading';
 import Navbar from './Navbar';
 import { Outlet } from 'react-router-dom';
 import SwapList from './SwapsList';
+import Alerts from './Alerts';
 
 const WalletInfo: React.FC = () => {
   const { walletAddress } = useParams();
@@ -92,7 +93,7 @@ const WalletInfo: React.FC = () => {
   // Check if current route is PNL
   const isPNLPage = location.pathname.endsWith('/pnl');
   const isSwapsPage = location.pathname.endsWith('/swaps');
-  
+  const isAlertsPage = location.pathname.endsWith('/alerts');
 
   return (
     <>
@@ -103,7 +104,10 @@ const WalletInfo: React.FC = () => {
         <Outlet />
       ) : isSwapsPage ? (
       <SwapList/>
-      ) : (
+      ) : 
+      isAlertsPage ? (
+        <Alerts/>
+        ) :(
         <>
           <div className="page-header">
             <h2>

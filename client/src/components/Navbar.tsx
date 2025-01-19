@@ -41,6 +41,11 @@ const Navbar: React.FC = () => {
             Swaps
           </Link>
         </li>
+        <li>
+          <Link to={`/wallets/${walletAddress}/alerts`} onClick={() => setIsMenuOpen(false)}>
+            Alerts
+          </Link>
+        </li>
       </ul>
     </nav>
   );

@@ -24,6 +24,10 @@
       "dest": "/api/swaps.js"
     },
     {
+      "src": "/api/alerts",
+      "dest": "/api/alerts.js"
+    },
+    {
       "src": "/(wallets/.*)",
       "dest": "/client/dist/index.html"  
     },
