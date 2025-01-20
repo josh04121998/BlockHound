@@ -1,17 +1,12 @@
 import fetch from 'node-fetch';
-import dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config();
 
 export default async function handler(req, res) {
   const { address } = req.query;
   const chain = 'eth';
   const order = 'DESC';
 
-  // Check if the address is provided
   if (!address) {
-    return res.status(400).json({ error: 'Missing address query parameter' });
+    return res.status(400).json({ error: "Missing address query parameter" });
   }
 
   try {
@@ -27,7 +22,7 @@ export default async function handler(req, res) {
     const options = {
       method: 'GET',
       headers: {
-        accept: 'application/json',
+        Accept: 'application/json',
         'X-API-Key': process.env.MORALIS_API_KEY, // Use API key from environment variables
       },
     };
@@ -38,15 +33,18 @@ export default async function handler(req, res) {
     // Handle non-200 responses from the API
     if (!response.ok) {
       const errorData = await response.json();
-      return res.status(response.status).json(errorData);
+      console.error("Error from Moralis API:", errorData);
+      return res.status(response.status).json({
+        error: "Error from external API",
+        details: errorData,
+      });
     }
 
     // Parse and return the successful response
     const data = await response.json();
     res.status(200).json(data);
-
   } catch (error) {
-    console.error('Error fetching swaps:', error);
-    res.status(500).json({ error: 'Failed to fetch swaps.' });
+    console.error("Error fetching wallet PnL data:", error.message);
+    res.status(500).json({ error: "An error occurred while fetching wallet PnL data.", details: error.message });
   }
 }
