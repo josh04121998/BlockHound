@@ -22,7 +22,6 @@ export default async function handler(req, res) {
     const options = {
       method: 'GET',
       headers: {
-        Accept: 'application/json',
         'X-API-Key': process.env.MORALIS_API_KEY, // Use API key from environment variables
       },
     };
