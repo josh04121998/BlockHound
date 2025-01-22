@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 export default async function handler(req, res) {
   const { address } = req.query;
@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Calculate the fromDate as 7 days ago
+    // Calculate the `fromDate` as 7 days ago
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const fromDate = sevenDaysAgo.toISOString();
@@ -18,32 +18,34 @@ export default async function handler(req, res) {
     // Construct the URL
     const url = `https://deep-index.moralis.io/api/v2.2/wallets/${address}/swaps?chain=${chain}&order=${order}&from_date=${fromDate}`;
 
-    // Define the API request options
-    const options = {
+    // Set the axios request configuration
+    const config = {
       method: 'GET',
+      url,
       headers: {
-        'X-API-Key': process.env.MORALIS_API_KEY, // Use API key from environment variables
+        accept: 'application/json',
+        'X-API-Key': process.env.MORALIS_API_KEY, // Use your environment variable
       },
+      timeout: 60000, // Set timeout to 60 seconds
     };
 
-    // Make the request to the Moralis API
-    const response = await fetch(url, options);
+    // Make the API request using axios
+    const response = await axios(config);
 
-    // Handle non-200 responses from the API
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Error from Moralis API:", errorData);
-      return res.status(response.status).json({
-        error: "Error from external API",
-        details: errorData,
-      });
-    }
-
-    // Parse and return the successful response
-    const data = await response.json();
-    res.status(200).json(data);
+    // Send the successful response data
+    res.status(200).json(response.data);
   } catch (error) {
-    console.error("Error fetching wallet PnL data:", error.message);
-    res.status(500).json({ error: "An error occurred while fetching wallet PnL data.", details: error.message });
+    console.error("Error fetching wallet swaps data:", error);
+
+    // Handle timeout or network issues
+    if (error.code === 'ECONNABORTED') {
+      res.status(504).json({ error: "Request timed out. Please try again later." });
+    } else if (error.response) {
+      // Handle errors returned by the Moralis API
+      res.status(error.response.status).json(error.response.data);
+    } else {
+      // Handle other unexpected errors
+      res.status(500).json({ error: "An unexpected error occurred while fetching wallet swaps data." });
+    }
   }
 }
