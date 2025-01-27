@@ -28,6 +28,10 @@
       "dest": "/api/alerts.js"
     },
     {
+      "src": "/api/webhook",
+      "dest": "/api/webhook.js"
+    },
+    {
       "src": "/(wallets/.*)",
       "dest": "/client/dist/index.html"  
     },
