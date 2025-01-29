@@ -9,6 +9,7 @@
 
 .token-list-wrapper {
   overflow-x: auto; /* Allow horizontal scrolling */
+  width: 100%
 }
 
 .token-list {
