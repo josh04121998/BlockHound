@@ -106,6 +106,10 @@
   color: #333333;
 }
 
+.pnl-separator {
+  margin-bottom: 30px; /* Space between TokenPnLCard and OpenProfits */
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .pnl-card {

@@ -1,0 +1,121 @@
+/* Open Profits Card Container */
+.open-profits-card {
+    background-color: #f8f9fa;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+    margin: 0 auto;
+  }
+  
+  /* Wrapper for Open Profits List */
+  .open-profits-list-wrapper {
+    overflow-x: auto;
+    width: 100%;
+  }
+  
+  /* Open Profits List */
+  .open-profits-list {
+    width: 100%;
+    display: table;
+    border-collapse: collapse;
+    margin: 0 auto;
+  }
+  
+  /* Table Header */
+  .open-profits-header {
+    display: table-header-group;
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  
+  .open-profits-header .table-cell {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    text-align: left;
+    padding: 10px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  
+  /* Table Body */
+  .open-profits-body {
+    display: table-row-group;
+  }
+  
+  .open-profit-row {
+    display: table-row;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .open-profit-row:last-child {
+    border-bottom: none;
+  }
+  
+  /* Table Cells */
+  .open-profit-cell {
+    display: table-cell;
+    text-align: left;
+    padding: 10px;
+    vertical-align: middle;
+  }
+  
+  /* Token with Logo */
+  .token {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .token-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .token-name {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  .token-symbol {
+    font-size: 0.85rem;
+    color: #666;
+  }
+  
+  /* Positive and Negative Profit Styles */
+  .positive {
+    color: #0bc18d;
+    font-weight: 600;
+  }
+  
+  .negative {
+    color: #e84141;
+    font-weight: 600;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .open-profits-list-wrapper {
+      overflow-x: auto;
+    }
+  
+    .token-logo {
+      width: 24px;
+      height: 24px;
+    }
+  
+    .open-profits-header .table-cell {
+      font-size: 0.8rem;
+      padding: 8px;
+    }
+  
+    .open-profit-cell {
+      font-size: 0.85rem;
+      padding: 8px;
+    }
+  }
+  
