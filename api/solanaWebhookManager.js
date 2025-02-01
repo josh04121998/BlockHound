@@ -66,7 +66,7 @@ async function findOrCreateWebhook() {
 async function addAddressToWebhook(webhookRow, solAddress) {
     // 1. Fetch current addresses from Helius
     const helius = new Helius(HELIUS_API_KEY);
-    const existingWebhook = await helius.getWebhook(webhookRow.webhook_id);
+    const existingWebhook = await helius.getWebhookByID(webhookRow.webhook_id);
 
     const currentAddresses = existingWebhook.accountAddresses || [];
     // 2. Combine with the new one
@@ -194,7 +194,7 @@ async function untrackSolanaAddress(chatId, solAddress) {
         if (onlyThisUser) {
             // (a) Fetch the current addresses from Helius
             const helius = new Helius(HELIUS_API_KEY);
-            const existingWebhook = await helius.getWebhook(webhookRow.webhook_id);
+            const existingWebhook = await helius.getWebhookByID(webhookRow.webhook_id);
             const currentAddresses = existingWebhook.accountAddresses || [];
 
             // (b) Remove the address from the array
