@@ -1,7 +1,7 @@
 // pages/api/telegram.js
 
 import { createClient } from '@supabase/supabase-js';
-import { initializeMoralis } from './initializeMoralis'; // Adjust path as needed
+const { initializeMoralis } = require('./initializeMoralis');
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URLL,

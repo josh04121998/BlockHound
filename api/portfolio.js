@@ -1,5 +1,4 @@
 require("dotenv").config(); // Load environment variables for local development
-const { default: Moralis } = require("moralis");
 const express = require("express");
 
 const app = express();
