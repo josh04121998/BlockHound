@@ -1,14 +1,14 @@
 // pages/api/telegram.js
 
-import { createClient } from '@supabase/supabase-js';
-const { initializeMoralis } = require('./initializeMoralis');
+const { createClient } = require('@supabase/supabase-js');
+const initializeMoralis = require("./initializeMoralis"); // Adjust path as needed
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URLL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }

@@ -1,5 +1,5 @@
 // pages/api/walletProfitability.js
-const { initializeMoralis } = require('./initializeMoralis');
+const initializeMoralis = require("./initializeMoralis");
 
 module.exports = async (req, res) => {
   const { address } = req.query;

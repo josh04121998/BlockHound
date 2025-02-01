@@ -1,9 +1,8 @@
-// initializeMoralis.js
-import Moralis from 'moralis';
+const { default: Moralis } = require("moralis");
 
 let isMoralisInitialized = false;
 
-export async function initializeMoralis() {
+const initializeMoralis = async () => {
   if (!isMoralisInitialized) {
     await Moralis.start({
       apiKey: process.env.MORALIS_API_KEY,
@@ -12,4 +11,6 @@ export async function initializeMoralis() {
     console.log("Moralis initialized successfully.");
   }
   return Moralis;
-}
+};
+
+module.exports = initializeMoralis;

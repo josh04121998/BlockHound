@@ -1,8 +1,11 @@
 require("dotenv").config(); // Load environment variables for local development
+const { default: Moralis } = require("moralis");
 const express = require("express");
 
 const app = express();
-const { initializeMoralis } = require('./initializeMoralis');
+
+// Initialize Moralis globally to avoid re-initialization on every request
+let isMoralisInitialized = false;
 
 // Portfolio endpoint
 app.get("/api/portfolio", async (req, res) => {
@@ -13,7 +16,14 @@ app.get("/api/portfolio", async (req, res) => {
   }
 
   try {
-    const Moralis = await initializeMoralis();
+    if (!isMoralisInitialized) {
+      // Initialize Moralis only once
+      await Moralis.start({
+        apiKey: process.env.MORALIS_API_KEY,
+      });
+      isMoralisInitialized = true;
+      console.log("Moralis initialized successfully.");
+    }
 
     // Fetch portfolio data
     const [netWorthResponse, activeChainsResponse, tokenBalancesPriceResponse] = await Promise.all([
