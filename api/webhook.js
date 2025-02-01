@@ -1,6 +1,6 @@
 // pages/api/moralis-webhook.js
 
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URLL,
@@ -10,7 +10,7 @@ const supabase = createClient(
 // We'll reuse the same helper to send Telegram messages
 // or define a new one.
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
