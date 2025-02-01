@@ -38,7 +38,7 @@ async function findOrCreateWebhook() {
     });
 
     // newWebhookResponse has .id (Helius webhook ID)
-    const { id: newHeliusWebhookID } = newWebhookResponse;
+    const { webhookID: newHeliusWebhookID } = newWebhookResponse;
 
     // 3. Insert a row in 'solana_webhooks'
     const { data: inserted, error: insertError } = await supabase
