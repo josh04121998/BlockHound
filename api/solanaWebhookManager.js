@@ -34,9 +34,7 @@ async function findOrCreateWebhook() {
     const newWebhookResponse = await helius.createWebhook({
         accountAddresses: [], // Start empty, we’ll add address later
         transactionTypes: DEFAULT_TRANSACTION_TYPES,
-        webhookURL: DEFAULT_WEBHOOK_URL,
-        name: 'Telegram Bot Webhook',    // optional name
-        description: 'Tracks up to 25 addresses', // optional
+        webhookURL: DEFAULT_WEBHOOK_URL
     });
 
     // newWebhookResponse has .id (Helius webhook ID)
@@ -78,7 +76,6 @@ async function addAddressToWebhook(webhookRow, solAddress) {
     // 3. Update the webhook in Helius
     await helius.updateWebhook({
         webhookID: webhookRow.webhook_id,
-        name: existingWebhook.name || 'Telegram Bot Webhook',
         transactionTypes: existingWebhook.transactionTypes || DEFAULT_TRANSACTION_TYPES,
         accountAddresses: updatedAddresses,
         webhookURL: existingWebhook.webhookURL || DEFAULT_WEBHOOK_URL,
@@ -206,7 +203,6 @@ async function untrackSolanaAddress(chatId, solAddress) {
             // (c) Update the webhook in Helius
             await helius.updateWebhook({
                 webhookID: webhookRow.webhook_id,
-                name: existingWebhook.name,
                 transactionTypes: existingWebhook.transactionTypes,
                 accountAddresses: updatedAddresses,
                 webhookURL: existingWebhook.webhookURL,
