@@ -1,5 +1,5 @@
 // solanaWebhookManager.js
-const { Helius, TransactionType } = require('helius-sdk');
+const { Helius, TransactionType, Address } = require('helius-sdk');
 const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
@@ -32,7 +32,7 @@ async function findOrCreateWebhook() {
     // 2. Create a new webhook via Helius
     const helius = new Helius(HELIUS_API_KEY);
     const newWebhookResponse = await helius.createWebhook({
-        accountAddresses: [], // Start empty, we’ll add address later
+        accountAddresses: [Address.NONE], // Start empty, we’ll add address later
         transactionTypes: DEFAULT_TRANSACTION_TYPES,
         webhookURL: DEFAULT_WEBHOOK_URL
     });
