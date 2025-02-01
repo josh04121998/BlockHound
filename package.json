@@ -25,6 +25,7 @@
     "body-parser": "^1.20.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "helius-sdk": "^1.4.2",
     "moralis": "^2.27.2",
     "node-fetch": "^3.3.2",
     "node-fetch-commonjs": "^3.3.2"

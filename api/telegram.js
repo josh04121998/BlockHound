@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const initializeMoralis = require('./initializeMoralis');
+const { trackSolanaAddress } = require('./solanaWebhookManager');
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -10,6 +11,13 @@ const supabase = createClient(
 function isValidEthAddress(address) {
     // Basic check for "0x" followed by 40 hex chars
     return /^0x[a-fA-F0-9]{40}$/.test(address);
+}
+
+// Minimal Solana address validation (Base58 up to 44 chars, can vary)
+function isValidSolAddress(address) {
+    // A simple check: Solana addresses are typically Base58, length ~32-44
+    // This is not bulletproof, but decent for quick validation
+    return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
 }
 
 module.exports = async (req, res) => {
@@ -32,8 +40,10 @@ module.exports = async (req, res) => {
                 await sendTelegramMessage(
                     chatId,
                     'Welcome! Commands:\n' +
-                    '/track <wallet> – Start tracking an ETH address\n' +
-                    '/untrack <wallet> – Stop tracking an ETH address'
+                    '/track <eth_wallet> – Track an Ethereum address\n' +
+                    '/untrack <eth_wallet> – Untrack an Ethereum address\n' +
+                    '/tracksol <sol_address> – Track a Solana address\n' +
+                    '/untracksol <sol_address> – Untrack a Solana address'
                 );
             } else if (text.startsWith('/track')) {
                 // e.g. "/track 0xABC123..."
@@ -161,7 +171,61 @@ module.exports = async (req, res) => {
                         `Wallet ${walletAddress} was removed from tracking.`
                     );
                 }
-            } else {
+            }
+            else if (text.startsWith('/tracksol ')) {
+                const parts = text.split(' ');
+                if (parts.length < 2) {
+                    await sendTelegramMessage(chatId, 'Usage: /tracksol <sol_address>');
+                } else {
+                    const solAddress = parts[1];
+                    if (!isValidSolAddress(solAddress)) {
+                        await sendTelegramMessage(chatId, 'Invalid Solana address.');
+                        return res.status(200).json({ ok: true });
+                    }
+
+                    // Use the helper
+                    try {
+                        const result = await trackSolanaAddress(chatId, solAddress);
+                        if (result.success) {
+                            await sendTelegramMessage(chatId, `Solana address ${solAddress} is now tracked!`);
+                        } else if (result.reason === 'already_tracked') {
+                            await sendTelegramMessage(chatId, `You are already tracking ${solAddress}.`);
+                        } else {
+                            await sendTelegramMessage(chatId, 'Unknown error tracking address.');
+                        }
+                    } catch (err) {
+                        console.error('Error trackSolanaAddress:', err);
+                        await sendTelegramMessage(chatId, 'Failed to track Solana address. Please try again.');
+                    }
+                }
+            }
+
+            // 4. NEW: Untrack Solana
+            else if (text.startsWith('/untracksol ')) {
+                const parts = text.split(' ');
+                if (parts.length < 2) {
+                    await sendTelegramMessage(chatId, 'Usage: /untracksol <sol_address>');
+                } else {
+                    const solAddress = parts[1];
+                    if (!isValidSolAddress(solAddress)) {
+                        await sendTelegramMessage(chatId, 'Invalid Solana address.');
+                        return res.status(200).json({ ok: true });
+                    }
+
+                    const result = await untrackSolanaAddress(chatId, solAddress);
+                    if (!result.success) {
+                        if (result.reason === 'not_tracked') {
+                            await sendTelegramMessage(chatId, `You are not tracking ${solAddress}.`);
+                        } else {
+                            await sendTelegramMessage(chatId, `Error untracking address: ${result.reason}`);
+                        }
+                    } else {
+                        await sendTelegramMessage(chatId, `Solana address ${solAddress} was removed from tracking.`);
+                    }
+                }
+            }
+
+            else {
                 // Unrecognized command
                 await sendTelegramMessage(
                     chatId,
