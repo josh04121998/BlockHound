@@ -1,30 +1,21 @@
-// pages/api/telegram.js
+// api/telegram.js
 
-import { createClient } from '@supabase/supabase-js';
-import Moralis from 'moralis';
-
-let isMoralisInitialized = false;
+const { createClient } = require('@supabase/supabase-js');
+const initializeMoralis = require("./initializeMoralis");
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
         // 1. Initialize Moralis on each request (internally it's a one-time init)
-        if (!isMoralisInitialized) {
-            // Initialize Moralis only once
-            await Moralis.start({
-                apiKey: process.env.MORALIS_API_KEY,
-            });
-            isMoralisInitialized = true;
-            console.log("Moralis initialized successfully.");
-        }
+        const Moralis = await initializeMoralis();
 
         // 2. Handle Telegram webhook
         const update = req.body;
