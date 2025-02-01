@@ -45,7 +45,60 @@ module.exports = async (req, res) => {
                     '/tracksol <sol_address> – Track a Solana address\n' +
                     '/untracksol <sol_address> – Untrack a Solana address'
                 );
-            } else if (text.startsWith('/track')) {
+            }
+            else if (text.startsWith('/tracksol ')) {
+                const parts = text.split(' ');
+                if (parts.length < 2) {
+                    await sendTelegramMessage(chatId, 'Usage: /tracksol <sol_address>');
+                } else {
+                    const solAddress = parts[1];
+                    if (!isValidSolAddress(solAddress)) {
+                        await sendTelegramMessage(chatId, 'Invalid Solana address.');
+                        return res.status(200).json({ ok: true });
+                    }
+
+                    // Use the helper
+                    try {
+                        const result = await trackSolanaAddress(chatId, solAddress);
+                        if (result.success) {
+                            await sendTelegramMessage(chatId, `Solana address ${solAddress} is now tracked!`);
+                        } else if (result.reason === 'already_tracked') {
+                            await sendTelegramMessage(chatId, `You are already tracking ${solAddress}.`);
+                        } else {
+                            await sendTelegramMessage(chatId, 'Unknown error tracking address.');
+                        }
+                    } catch (err) {
+                        console.error('Error trackSolanaAddress:', err);
+                        await sendTelegramMessage(chatId, 'Failed to track Solana address. Please try again.');
+                    }
+                }
+            }
+
+            // 4. NEW: Untrack Solana
+            else if (text.startsWith('/untracksol ')) {
+                const parts = text.split(' ');
+                if (parts.length < 2) {
+                    await sendTelegramMessage(chatId, 'Usage: /untracksol <sol_address>');
+                } else {
+                    const solAddress = parts[1];
+                    if (!isValidSolAddress(solAddress)) {
+                        await sendTelegramMessage(chatId, 'Invalid Solana address.');
+                        return res.status(200).json({ ok: true });
+                    }
+
+                    const result = await untrackSolanaAddress(chatId, solAddress);
+                    if (!result.success) {
+                        if (result.reason === 'not_tracked') {
+                            await sendTelegramMessage(chatId, `You are not tracking ${solAddress}.`);
+                        } else {
+                            await sendTelegramMessage(chatId, `Error untracking address: ${result.reason}`);
+                        }
+                    } else {
+                        await sendTelegramMessage(chatId, `Solana address ${solAddress} was removed from tracking.`);
+                    }
+                }
+            }
+            else if (text.startsWith('/track')) {
                 // e.g. "/track 0xABC123..."
                 const parts = text.split(' ');
                 if (parts.length < 2) {
@@ -172,58 +225,7 @@ module.exports = async (req, res) => {
                     );
                 }
             }
-            else if (text.startsWith('/tracksol ')) {
-                const parts = text.split(' ');
-                if (parts.length < 2) {
-                    await sendTelegramMessage(chatId, 'Usage: /tracksol <sol_address>');
-                } else {
-                    const solAddress = parts[1];
-                    if (!isValidSolAddress(solAddress)) {
-                        await sendTelegramMessage(chatId, 'Invalid Solana address.');
-                        return res.status(200).json({ ok: true });
-                    }
 
-                    // Use the helper
-                    try {
-                        const result = await trackSolanaAddress(chatId, solAddress);
-                        if (result.success) {
-                            await sendTelegramMessage(chatId, `Solana address ${solAddress} is now tracked!`);
-                        } else if (result.reason === 'already_tracked') {
-                            await sendTelegramMessage(chatId, `You are already tracking ${solAddress}.`);
-                        } else {
-                            await sendTelegramMessage(chatId, 'Unknown error tracking address.');
-                        }
-                    } catch (err) {
-                        console.error('Error trackSolanaAddress:', err);
-                        await sendTelegramMessage(chatId, 'Failed to track Solana address. Please try again.');
-                    }
-                }
-            }
-
-            // 4. NEW: Untrack Solana
-            else if (text.startsWith('/untracksol ')) {
-                const parts = text.split(' ');
-                if (parts.length < 2) {
-                    await sendTelegramMessage(chatId, 'Usage: /untracksol <sol_address>');
-                } else {
-                    const solAddress = parts[1];
-                    if (!isValidSolAddress(solAddress)) {
-                        await sendTelegramMessage(chatId, 'Invalid Solana address.');
-                        return res.status(200).json({ ok: true });
-                    }
-
-                    const result = await untrackSolanaAddress(chatId, solAddress);
-                    if (!result.success) {
-                        if (result.reason === 'not_tracked') {
-                            await sendTelegramMessage(chatId, `You are not tracking ${solAddress}.`);
-                        } else {
-                            await sendTelegramMessage(chatId, `Error untracking address: ${result.reason}`);
-                        }
-                    } else {
-                        await sendTelegramMessage(chatId, `Solana address ${solAddress} was removed from tracking.`);
-                    }
-                }
-            }
 
             else {
                 // Unrecognized command
