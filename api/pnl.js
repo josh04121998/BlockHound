@@ -1,5 +1,5 @@
-const initializeMoralis = require("./initializeMoralis");
-
+// pages/api/walletProfitability.js
+const { initializeMoralis } = require('./initializeMoralis');
 
 module.exports = async (req, res) => {
   const { address } = req.query;
@@ -9,21 +9,21 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // Initialize Moralis
     const Moralis = await initializeMoralis();
 
     // Fetch wallet profitability summary
     const profitabilitySummaryResponse = await Moralis.EvmApi.wallets.getWalletProfitabilitySummary({
-      chain: "0x1", // Ethereum Mainnet
+      chain: "0x1",
       address,
     });
 
     // Fetch detailed wallet profitability data
     const profitabilityResponse = await Moralis.EvmApi.wallets.getWalletProfitability({
-      chain: "0x1", // Ethereum Mainnet
+      chain: "0x1",
       address,
     });
 
-    // Combine the responses
     const combinedResponse = {
       profitabilitySummary: profitabilitySummaryResponse.raw,
       profitability: profitabilityResponse.raw,
@@ -32,6 +32,8 @@ module.exports = async (req, res) => {
     res.status(200).json(combinedResponse);
   } catch (error) {
     console.error("Error fetching wallet PnL data:", error);
-    res.status(500).json({ error: "An error occurred while fetching wallet PnL data." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching wallet PnL data." });
   }
 };

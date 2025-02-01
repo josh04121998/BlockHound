@@ -3,9 +3,7 @@ const { default: Moralis } = require("moralis");
 const express = require("express");
 
 const app = express();
-
-// Initialize Moralis globally to avoid re-initialization on every request
-let isMoralisInitialized = false;
+const { initializeMoralis } = require('./initializeMoralis');
 
 // Portfolio endpoint
 app.get("/api/portfolio", async (req, res) => {
@@ -16,14 +14,7 @@ app.get("/api/portfolio", async (req, res) => {
   }
 
   try {
-    if (!isMoralisInitialized) {
-      // Initialize Moralis only once
-      await Moralis.start({
-        apiKey: process.env.MORALIS_API_KEY,
-      });
-      isMoralisInitialized = true;
-      console.log("Moralis initialized successfully.");
-    }
+    const Moralis = await initializeMoralis();
 
     // Fetch portfolio data
     const [netWorthResponse, activeChainsResponse, tokenBalancesPriceResponse] = await Promise.all([
