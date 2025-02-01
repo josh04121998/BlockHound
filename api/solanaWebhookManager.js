@@ -74,7 +74,7 @@ async function addAddressToWebhook(webhookRow, solAddress) {
     const updatedAddresses = Array.from(updatedSet);
 
     // 3. Update the webhook in Helius
-    await helius.updateWebhook({
+    await helius.editWebhook({
         webhookID: webhookRow.webhook_id,
         transactionTypes: existingWebhook.transactionTypes || DEFAULT_TRANSACTION_TYPES,
         accountAddresses: updatedAddresses,
@@ -201,7 +201,7 @@ async function untrackSolanaAddress(chatId, solAddress) {
             const updatedAddresses = currentAddresses.filter((addr) => addr !== solAddress);
 
             // (c) Update the webhook in Helius
-            await helius.updateWebhook({
+            await helius.editWebhook({
                 webhookID: webhookRow.webhook_id,
                 transactionTypes: existingWebhook.transactionTypes,
                 accountAddresses: updatedAddresses,
