@@ -32,6 +32,10 @@
       "dest": "/api/webhook.js"
     },
     {
+      "src": "/api/telegram",
+      "dest": "/api/telegram.js"
+    },
+    {
       "src": "/(wallets/.*)",
       "dest": "/client/dist/index.html"  
     },
