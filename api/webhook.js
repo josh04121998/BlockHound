@@ -15,57 +15,81 @@ module.exports = async (req, res) => {
 
     try {
         const body = req.body;
-        console.log('Moralis webhook received:', JSON.stringify(body, null, 2));
+        console.log('Moralis webhook received (truncated logging)...');
+        // If you want to see the entire JSON, do: console.log(JSON.stringify(body, null, 2));
 
-        // 1. Check for ERC20 Transfers (or logs, NFT transfers, etc., as needed)
+        // 1. Collect impacted addresses from ERC20 transfers
         const erc20Transfers = body.erc20Transfers || [];
+        // We'll store each transfer's relevant info for alerts in an array
+        const transfersData = [];
 
-        // We'll collect addresses from these transfers in a Set to avoid duplicates
-        const impactedAddresses = new Set();
-
-        // For each transfer, add the "from" and "to" addresses (if present)
         for (const transfer of erc20Transfers) {
-            if (transfer.from) impactedAddresses.add(transfer.from.toLowerCase());
-            if (transfer.to) impactedAddresses.add(transfer.to.toLowerCase());
+            const fromAddr = transfer.from?.toLowerCase();
+            const toAddr = transfer.to?.toLowerCase();
+            const tokenName = transfer.tokenName || 'Unknown Token';
+            const tokenSymbol = transfer.tokenSymbol || '???';
+            const txHash = transfer.transactionHash;
+            const value = transfer.valueWithDecimals || transfer.value || '???';
+
+            // Prepare a tidy message
+            const etherscanLink = `https://etherscan.io/tx/${txHash}`;
+            const msg = `ERC20 Transfer\nToken: ${tokenName} (${tokenSymbol})\nAmount: ${value}\nFrom: ${fromAddr}\nTo: ${toAddr}\nTx: ${etherscanLink}`;
+
+            // Save this item so we can notify watchers of "from" and watchers of "to"
+            transfersData.push({
+                fromAddr,
+                toAddr,
+                msg, // the formatted message
+            });
         }
 
-        console.log('impacted addy:', JSON.stringify(impactedAddresses));
-        // 2. For each impacted address, find which Telegram users are tracking it
-        for (const address of impactedAddresses) {
-            // Query your "wallets" table to see who tracks this address
-            const { data: wallets, error } = await supabase
-                .from('wallets')
-                .select('*')
-                .ilike('wallet_address', address); // or eq if your DB stores it exactly
-
-            if (error) {
-                console.error('Supabase error:', error);
-                // We won't fail the entire webhook if one query fails; just continue
-                continue;
+        // 2. For each transfer item, notify watchers of "fromAddr" + watchers of "toAddr"
+        for (const t of transfersData) {
+            // Notify watchers of 'fromAddr'
+            if (t.fromAddr) {
+                await notifyWatchers(t.fromAddr, t.msg);
             }
-            console.log('wallets:', JSON.stringify(wallets));
-            // If there are watchers, notify them
-            if (wallets && wallets.length > 0) {
-                for (const w of wallets) {
-                    const chatId = w.telegram_chat_id;
-                    console.log('Sending message to chat:', chatId);
-                    const resp = await sendTelegramMessage(
-                        chatId,
-                        `New on-chain event for your tracked address: ${address}\nDetails: ${JSON.stringify(body.erc20Transfers)}`
-                    );
-                    console.log('Telegram response:', resp);
-                }
+
+            // Notify watchers of 'toAddr', skip if it's the same as fromAddr
+            if (t.toAddr && t.toAddr !== t.fromAddr) {
+                await notifyWatchers(t.toAddr, t.msg);
             }
         }
 
-        // 3. Respond success
-        return res.status(200).json({ message: 'Handled webhook' });
+        // 3. Respond OK
+        return res.status(200).json({ message: 'Handled Moralis webhook' });
     } catch (err) {
         console.error('Error in Moralis webhook:', err);
         return res.status(500).json({ error: 'Server error' });
     }
 };
 
+// Helper to find watchers of a specific address & send them the message
+async function notifyWatchers(address, msg) {
+    // 1. Look up in "wallets" table
+    // If your DB stores addresses in uppercase or exactly as user entered,
+    // you might need .eq('wallet_address', address) or .ilike for partial matches
+    const { data: wallets, error } = await supabase
+        .from('wallets')
+        .select('*')
+        .ilike('wallet_address', address);
+
+    if (error) {
+        console.error('Supabase error:', error);
+        return;
+    }
+
+    // 2. If watchers exist, send them Telegram messages
+    if (wallets && wallets.length > 0) {
+        for (const w of wallets) {
+            const chatId = w.telegram_chat_id;
+            // We do one message per user
+            await sendTelegramMessage(chatId, msg);
+        }
+    }
+}
+
+// Telegram message helper
 async function sendTelegramMessage(chatId, message) {
     const token = process.env.TG_TOKEN;
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
@@ -78,5 +102,8 @@ async function sendTelegramMessage(chatId, message) {
             text: message,
         }),
     });
-    return resp.json();
+
+    const data = await resp.json();
+    // You can log data if you need to debug Telegram's response
+    return data;
 }
