@@ -48,10 +48,12 @@ module.exports = async (req, res) => {
             if (wallets && wallets.length > 0) {
                 for (const w of wallets) {
                     const chatId = w.telegram_chat_id;
-                    await sendTelegramMessage(
+                    console.log('Sending message to chat:', chatId);
+                    const resp = await sendTelegramMessage(
                         chatId,
                         `New on-chain event for your tracked address: ${address}\nDetails: ${JSON.stringify(body)}`
                     );
+                    console.log('Telegram response:', resp);
                 }
             }
         }
@@ -64,7 +66,6 @@ module.exports = async (req, res) => {
     }
 };
 
-// Reuse your Telegram send-message helper or define inline:
 async function sendTelegramMessage(chatId, message) {
     const token = process.env.TG_TOKEN;
     const url = `https://api.telegram.org/bot${token}/sendMessage`;

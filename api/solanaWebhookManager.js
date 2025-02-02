@@ -23,7 +23,7 @@ async function findOrCreateWebhook() {
     if (error) {
         throw new Error('DB error finding webhook: ' + error.message);
     }
-
+    console.log('find or create exisiting webhook:', webhooks);
     if (webhooks && webhooks.length > 0) {
         // Found an existing one with capacity
         return webhooks[0];
@@ -74,13 +74,16 @@ async function addAddressToWebhook(webhookRow, solAddress) {
     const updatedSet = new Set([...currentAddresses, solAddress]);
     const updatedAddresses = Array.from(updatedSet);
 
+    console.log('updatring webhook:', existingWebhook);
     // 3. Update the webhook in Helius
-    await helius.editWebhook({
-        webhookID: webhookRow.webhook_id,
-        transactionTypes: existingWebhook.transactionTypes || DEFAULT_TRANSACTION_TYPES,
-        accountAddresses: updatedAddresses,
-        webhookURL: existingWebhook.webhookURL || DEFAULT_WEBHOOK_URL,
-    });
+    await helius.editWebhook(
+        webhookRow.webhook_id,
+        {
+            transactionTypes: existingWebhook.transactionTypes || DEFAULT_TRANSACTION_TYPES,
+            accountAddresses: updatedAddresses,
+            webhookURL: existingWebhook.webhookURL || DEFAULT_WEBHOOK_URL,
+        }
+    );
 
     // 4. Update DB address_count if we actually added a new address
     if (!currentAddresses.includes(solAddress)) {
@@ -202,12 +205,13 @@ async function untrackSolanaAddress(chatId, solAddress) {
             const updatedAddresses = currentAddresses.filter((addr) => addr !== solAddress);
 
             // (c) Update the webhook in Helius
-            await helius.editWebhook({
-                webhookID: webhookRow.webhook_id,
-                transactionTypes: existingWebhook.transactionTypes,
-                accountAddresses: updatedAddresses,
-                webhookURL: existingWebhook.webhookURL,
-            });
+            await helius.editWebhook(
+                webhookRow.webhook_id,
+                {
+                    transactionTypes: existingWebhook.transactionTypes,
+                    accountAddresses: updatedAddresses,
+                    webhookURL: existingWebhook.webhookURL,
+                });
 
             // (d) Decrement address_count in DB
             const newCount = Math.max(0, (webhookRow.address_count || 0) - 1);
