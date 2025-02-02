@@ -29,6 +29,7 @@ module.exports = async (req, res) => {
             if (transfer.to) impactedAddresses.add(transfer.to.toLowerCase());
         }
 
+        console.log('impacted addy:', JSON.stringify(impactedAddresses));
         // 2. For each impacted address, find which Telegram users are tracking it
         for (const address of impactedAddresses) {
             // Query your "wallets" table to see who tracks this address
@@ -42,7 +43,7 @@ module.exports = async (req, res) => {
                 // We won't fail the entire webhook if one query fails; just continue
                 continue;
             }
-
+            console.log('wallets:', JSON.stringify(wallets));
             // If there are watchers, notify them
             if (wallets && wallets.length > 0) {
                 for (const w of wallets) {
