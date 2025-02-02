@@ -51,7 +51,7 @@ module.exports = async (req, res) => {
                     console.log('Sending message to chat:', chatId);
                     const resp = await sendTelegramMessage(
                         chatId,
-                        `New on-chain event for your tracked address: ${address}\nDetails: ${JSON.stringify(body)}`
+                        `New on-chain event for your tracked address: ${address}\nDetails: ${JSON.stringify(body.erc20Transfers)}`
                     );
                     console.log('Telegram response:', resp);
                 }
