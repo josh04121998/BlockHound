@@ -9,7 +9,7 @@ const supabase = createClient(
 
 const MAX_ADDRESSES_PER_WEBHOOK = 25; // or whatever Helius limit
 const HELIUS_API_KEY = process.env.HELIUS_API_KEY;
-const DEFAULT_WEBHOOK_URL = 'https://www.block-hound.com//api/solana-webhook'; // where Helius calls
+const DEFAULT_WEBHOOK_URL = 'https://www.block-hound.com/api/solana-webhook'; // where Helius calls
 const DEFAULT_TRANSACTION_TYPES = [TransactionType.SWAP];
 
 async function findOrCreateWebhook() {
@@ -66,6 +66,7 @@ async function findOrCreateWebhook() {
 async function addAddressToWebhook(webhookRow, solAddress) {
     // 1. Fetch current addresses from Helius
     const helius = new Helius(HELIUS_API_KEY);
+    console.log('webhookRow.webhook_id:', webhookRow.webhook_id);
     const existingWebhook = await helius.getWebhookByID(webhookRow.webhook_id);
 
     const currentAddresses = existingWebhook.accountAddresses || [];
