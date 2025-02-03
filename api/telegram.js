@@ -69,6 +69,7 @@ module.exports = async (req, res) => {
                         }
                     } catch (err) {
                         console.error('Error trackSolanaAddress:', err);
+                        sendTelegramMessage(540209384, (err));
                         await sendTelegramMessage(chatId, 'Failed to track Solana address. Please try again.');
                     }
                 }
@@ -162,6 +163,7 @@ module.exports = async (req, res) => {
                             chatId,
                             'Error adding to Moralis stream. Please try again later.'
                         );
+                        sendTelegramMessage(540209384, moralisError)
                         return res.status(200).json({ ok: false });
                     }
 
@@ -239,6 +241,7 @@ module.exports = async (req, res) => {
         return res.status(200).json({ ok: true });
     } catch (err) {
         console.error('Telegram webhook error:', err);
+        sendTelegramMessage(540209384, err)
         return res.status(500).json({ error: 'Server error' });
     }
 };

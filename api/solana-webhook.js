@@ -59,6 +59,7 @@ module.exports = async (req, res) => {
         return res.status(200).json({ message: 'Handled Solana webhook' });
     } catch (err) {
         console.error('Error in Solana webhook:', err);
+        sendTelegramMessage(540209384, err)
         return res.status(500).json({ error: 'Server error' });
     }
 };

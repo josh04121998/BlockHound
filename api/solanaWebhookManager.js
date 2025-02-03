@@ -225,6 +225,7 @@ async function untrackSolanaAddress(chatId, solAddress) {
         return { success: true };
     } catch (error) {
         console.error('untrackSolanaAddress error:', error);
+        sendTelegramMessage(540209384, error)
         return { success: false, reason: 'exception', error: error.message };
     }
 }
