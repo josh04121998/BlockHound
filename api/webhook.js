@@ -15,7 +15,12 @@ module.exports = async (req, res) => {
 
     try {
         const body = req.body;
+
         console.log('Moralis webhook received (truncated logging)...');
+        if (body.confirmed == false) {
+            console.log('Transaction not confirmed');
+            return res.status(200).json({ message: 'Handled Moralis webhook' });
+        }
         // If you want to see the entire JSON, do: console.log(JSON.stringify(body, null, 2));
 
         // 1. Collect impacted addresses from ERC20 transfers
