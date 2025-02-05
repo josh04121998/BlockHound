@@ -2,8 +2,8 @@
 const supabase = require('./supabaseClient');
 const { sendTelegramMessage } = require('./telegram');
 const { isValidEthAddress, isValidSolAddress } = require('./validators');
-const initializeMoralis = require('./initializeMoralis');
-const { trackSolanaAddress, untrackSolanaAddress } = require('./solanaWebhookManager');
+const initializeMoralis = require('../initializeMoralis');
+const { trackSolanaAddress, untrackSolanaAddress } = require('../solanaWebhookManager');
 
 async function handleStart(chatId) {
     const message = [
