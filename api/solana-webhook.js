@@ -1,7 +1,4 @@
-// pages/api/solana-webhook.js
-
 const { createClient } = require('@supabase/supabase-js');
-const fetch = require('node-fetch'); // Ensure you have node-fetch installed
 
 // Initialize Supabase
 const supabase = createClient(

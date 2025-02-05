@@ -1,5 +1,3 @@
-const fetch = require('node-fetch'); // If using Node <18
-
 async function sendTelegramMessage(chatId, message) {
     const token = process.env.TG_TOKEN;
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
