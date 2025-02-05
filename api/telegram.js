@@ -1,5 +1,5 @@
 // /pages/api/telegramWebhook.js
-const { sendTelegramMessage } = require('../../lib/telegram');
+const { sendTelegramMessage } = require('./lib/telegram');
 const {
     handleStart,
     handleTrackSol,

@@ -1,6 +1,4 @@
 // /lib/coinbaseCommerce.js
-const fetch = require('node-fetch');
-
 async function createCoinbaseCharge(telegramChatId, plan) {
     const url = 'https://api.commerce.coinbase.com/charges';
     const chargeData = {
