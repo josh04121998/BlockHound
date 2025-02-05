@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
             const fee = evt.fee || 'N/A';
             const slot = evt.slot || 'N/A';
             const description = evt.description || 'N/A';
-
+            console.log('got most of the data ------- Get token transfers')
             // Determine swapped-out and swapped-in details (if tokenTransfers is present)
             let swappedOutDetail = 'N/A';
             let swappedInDetail = 'N/A';
@@ -71,9 +71,10 @@ Description: ${description}
 
             // Extract impacted addresses from the event payload.
             const impactedAddresses = extractAddressesFromHeliusEvent(evt);
-
+            console.log('getting impacted addy ' + impactedAddresses)
             // Notify watchers for each impacted address.
             for (const address of impactedAddresses) {
+                console.log('notifying ' + address)
                 await notifyWatchers(address, message);
             }
         }
