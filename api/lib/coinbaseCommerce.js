@@ -26,6 +26,7 @@ async function createCoinbaseCharge(telegramChatId, plan) {
     });
 
     const data = await response.json();
+    console.error('PAyment error:', data);
     return data;
 }
 
