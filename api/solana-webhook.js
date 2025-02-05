@@ -134,13 +134,14 @@ async function notifyWatchers(address, msg) {
         .eq('sol_address', address);
 
     if (error) {
-        console.error('Supabase error:', chatId);
+        console.error('Supabase error:', error);
         return;
     }
-    console.error('notify' + chatId + 'with message ' + msg);
+
     if (watchers && watchers.length > 0) {
         for (const w of watchers) {
             const chatId = w.telegram_chat_id;
+            console.error('notify' + chatId + 'with message ' + msg);
             await sendTelegramMessage(chatId, msg);
         }
     }
