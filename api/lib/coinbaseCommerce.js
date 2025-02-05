@@ -2,8 +2,6 @@
 async function createCoinbaseCharge(telegramChatId, plan) {
     const url = 'https://api.commerce.coinbase.com/charges';
     const chargeData = {
-        name: "Subscription Basic",
-        description: `Purchase the Basic subscription ($0.99) for extra address tracking.`,
         local_price: {
             amount: "0.99",
             currency: "USD"
