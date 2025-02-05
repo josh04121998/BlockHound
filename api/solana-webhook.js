@@ -1,6 +1,7 @@
 // pages/api/solana-webhook.js
 
 const { createClient } = require('@supabase/supabase-js');
+const fetch = require('node-fetch'); // Ensure you have node-fetch installed
 
 // Initialize Supabase
 const supabase = createClient(
@@ -8,8 +9,6 @@ const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-// We'll reuse the same helper to send Telegram messages
-// or define a new one below.
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -23,54 +22,111 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: 'Expected an array of events from Helius' });
         }
 
-        // For each event, parse which Solana addresses are impacted, then notify watchers
+        // Process each event in the payload
         for (const evt of events) {
-            // You can extract the "relevant" addresses from different parts of the evt object
+            // Basic extraction of details
+            const feePayer = evt.feePayer || 'N/A';
+            const signature = evt.signature || 'N/A';
+            const solscanUrl = `https://solscan.io/tx/${signature}`;
+            const slot = evt.slot || 'N/A';
+            const formattedTimestamp = evt.timestamp
+                ? new Date(evt.timestamp * 1000).toLocaleString()
+                : 'N/A';
+
+            // Extract swap details from tokenTransfers:
+            // Assume the non-SOL token is the swapped-out asset.
+            let swappedOutTransfer = null;
+            let swappedInTransfer = null;
+            if (evt.tokenTransfers && evt.tokenTransfers.length > 0) {
+                for (const tt of evt.tokenTransfers) {
+                    if (tt.mint === "So11111111111111111111111111111111111111112") {
+                        swappedInTransfer = tt;
+                    } else {
+                        swappedOutTransfer = tt;
+                    }
+                }
+            }
+
+            const swappedOutAmount = swappedOutTransfer
+                ? Number(swappedOutTransfer.tokenAmount).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                })
+                : 'N/A';
+            const tokenMint = swappedOutTransfer ? swappedOutTransfer.mint : 'N/A';
+            const truncatedMint =
+                tokenMint !== 'N/A'
+                    ? `${tokenMint.substring(0, 10)}...${tokenMint.substring(tokenMint.length - 4)}`
+                    : 'N/A';
+            const swappedInAmount = swappedInTransfer
+                ? Number(swappedInTransfer.tokenAmount).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                })
+                : 'N/A';
+            const feePaid = evt.fee ? Number(evt.fee).toLocaleString() : 'N/A';
+
+            // Build the summary message using only the key information
+            const message = `
+New Solana Swap Event
+
+Who & What:
+Account ${feePayer} executed a swap on Raydium, exchanging a large quantity of a specific token for SOL.
+
+Transaction Identification:
+Signature: ${signature}
+Solscan Link: ${solscanUrl}
+
+Monetary Details:
+Swapped Out: ~${swappedOutAmount} units of token ${truncatedMint}
+Swapped In: ~${swappedInAmount} SOL
+Fees Paid: ${feePaid} lamports
+
+Additional Info:
+Multiple native SOL transfers indicate fee distribution and liquidity adjustments.
+Recorded in slot ${slot} at ${formattedTimestamp}.
+      `.trim();
+
+            // Determine which addresses are impacted (here, using token transfers)
             const impactedAddresses = extractAddressesFromHeliusEvent(evt);
 
-            // For each address, find who tracks it and send Telegram alerts
+            // For each impacted address, look up watchers and send them the summary message
             for (const address of impactedAddresses) {
                 // 1. Find all Telegram chat IDs tracking this address
                 const { data: watchers, error: dbError } = await supabase
-                    .from('solana_wallets') // or your unified "wallets" table
+                    .from('solana_wallets') // Adjust table name if needed
                     .select('*')
                     .eq('sol_address', address);
 
                 if (dbError) {
                     console.error('Supabase error:', dbError);
-                    // Continue to next address
                     continue;
                 }
 
-                // 2. For each watcher, send a Telegram message
+                // 2. Send the summary message to each watcher via Telegram
                 if (watchers && watchers.length > 0) {
                     for (const w of watchers) {
                         const chatId = w.telegram_chat_id;
-                        await sendTelegramMessage(
-                            chatId,
-                            `New Solana event for address: ${address}\n\n${JSON.stringify(evt, null, 2)}`
-                        );
+                        await sendTelegramMessage(chatId, message);
                     }
                 }
             }
         }
 
-        // Return success after processing all events
         return res.status(200).json({ message: 'Handled Solana webhook' });
     } catch (err) {
         console.error('Error in Solana webhook:', err);
-        sendTelegramMessage(540209384, err)
+        // Optionally, alert an admin Telegram chat (e.g., chat id 540209384)
+        sendTelegramMessage(540209384, `Error in Solana webhook:\n\n${err}`);
         return res.status(500).json({ error: 'Server error' });
     }
 };
 
-// Helper function to parse addresses from a Helius event
+// Helper function to extract impacted addresses from a Helius event
 function extractAddressesFromHeliusEvent(evt) {
-    // This will vary based on which transaction types you subscribed to.
-    // For example, if you're tracking token transfers, you might look at:
-    // evt.events.tokenTransfers[].fromUserAccount, toUserAccount, etc.
     const addresses = new Set();
 
+    // Extract from tokenTransfers if present
     if (evt?.events?.tokenTransfers) {
         for (const t of evt.events.tokenTransfers) {
             if (t.fromUserAccount) addresses.add(t.fromUserAccount);
@@ -78,11 +134,10 @@ function extractAddressesFromHeliusEvent(evt) {
         }
     }
 
-    // You could add more logic for NFT listings, program interactions, etc.
     return [...addresses];
 }
 
-// Reuse a Telegram sendMessage helper or define inline
+// Telegram sendMessage helper
 async function sendTelegramMessage(chatId, message) {
     const token = process.env.TG_TOKEN;
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
