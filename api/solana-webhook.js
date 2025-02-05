@@ -1,4 +1,7 @@
+// pages/api/solana-webhook.js
+
 const { createClient } = require('@supabase/supabase-js');
+const fetch = require('node-fetch'); // Ensure node-fetch is installed if using Node <18
 
 // Initialize Supabase
 const supabase = createClient(
@@ -12,141 +15,161 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const events = req.body; // Helius typically sends an array of transaction objects
+        const events = req.body; // Expecting an array of events
         console.log('Solana webhook received:', JSON.stringify(events, null, 2));
 
         if (!Array.isArray(events)) {
             return res.status(400).json({ error: 'Expected an array of events from Helius' });
         }
 
-        // Process each event in the payload
+        // Process each event
         for (const evt of events) {
-            // Basic extraction of details
-            const feePayer = evt.feePayer || 'N/A';
-            const signature = evt.signature || 'N/A';
-            const solscanUrl = `https://solscan.io/tx/${signature}`;
-            const slot = evt.slot || 'N/A';
+            // Build a summary message using key details.
+            const solscanUrl = `https://solscan.io/tx/${evt.signature}`;
             const formattedTimestamp = evt.timestamp
                 ? new Date(evt.timestamp * 1000).toLocaleString()
                 : 'N/A';
+            const feePayer = evt.feePayer || 'N/A';
+            const signature = evt.signature || 'N/A';
+            const fee = evt.fee || 'N/A';
+            const slot = evt.slot || 'N/A';
+            const description = evt.description || 'N/A';
 
-            // Extract swap details from tokenTransfers:
-            // Assume the non-SOL token is the swapped-out asset.
-            let swappedOutTransfer = null;
-            let swappedInTransfer = null;
+            // Determine swapped-out and swapped-in details (if tokenTransfers is present)
+            let swappedOutDetail = 'N/A';
+            let swappedInDetail = 'N/A';
             if (evt.tokenTransfers && evt.tokenTransfers.length > 0) {
                 for (const tt of evt.tokenTransfers) {
+                    // Assume the native SOL mint is "So11111111111111111111111111111111111111112"
                     if (tt.mint === "So11111111111111111111111111111111111111112") {
-                        swappedInTransfer = tt;
+                        swappedInDetail = `${tt.tokenAmount} SOL`;
                     } else {
-                        swappedOutTransfer = tt;
+                        swappedOutDetail = `~${tt.tokenAmount} units of token ${tt.mint.substring(0, 10)}...`;
                     }
                 }
             }
 
-            const swappedOutAmount = swappedOutTransfer
-                ? Number(swappedOutTransfer.tokenAmount).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                })
-                : 'N/A';
-            const tokenMint = swappedOutTransfer ? swappedOutTransfer.mint : 'N/A';
-            const truncatedMint =
-                tokenMint !== 'N/A'
-                    ? `${tokenMint.substring(0, 10)}...${tokenMint.substring(tokenMint.length - 4)}`
-                    : 'N/A';
-            const swappedInAmount = swappedInTransfer
-                ? Number(swappedInTransfer.tokenAmount).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                })
-                : 'N/A';
-            const feePaid = evt.fee ? Number(evt.fee).toLocaleString() : 'N/A';
-
-            // Build the summary message using only the key information
             const message = `
 New Solana Swap Event
 
 Who & What:
-Account ${feePayer} executed a swap on Raydium, exchanging a large quantity of a specific token for SOL.
+Account ${feePayer} executed a swap on Raydium.
 
 Transaction Identification:
 Signature: ${signature}
 Solscan Link: ${solscanUrl}
 
 Monetary Details:
-Swapped Out: ~${swappedOutAmount} units of token ${truncatedMint}
-Swapped In: ~${swappedInAmount} SOL
-Fees Paid: ${feePaid} lamports
+Swapped Out: ${swappedOutDetail}
+Swapped In: ${swappedInDetail}
+Fees Paid: ${fee} lamports
 
 Additional Info:
-Multiple native SOL transfers indicate fee distribution and liquidity adjustments.
-Recorded in slot ${slot} at ${formattedTimestamp}.
+Slot: ${slot}
+Timestamp: ${formattedTimestamp}
+Description: ${description}
       `.trim();
 
-            // Determine which addresses are impacted (here, using token transfers)
+            // Extract impacted addresses from the event payload.
             const impactedAddresses = extractAddressesFromHeliusEvent(evt);
 
-            // For each impacted address, look up watchers and send them the summary message
+            // Notify watchers for each impacted address.
             for (const address of impactedAddresses) {
-                // 1. Find all Telegram chat IDs tracking this address
-                const { data: watchers, error: dbError } = await supabase
-                    .from('solana_wallets') // Adjust table name if needed
-                    .select('*')
-                    .eq('sol_address', address);
-
-                if (dbError) {
-                    console.error('Supabase error:', dbError);
-                    continue;
-                }
-
-                // 2. Send the summary message to each watcher via Telegram
-                if (watchers && watchers.length > 0) {
-                    for (const w of watchers) {
-                        const chatId = w.telegram_chat_id;
-                        await sendTelegramMessage(chatId, message);
-                    }
-                }
+                await notifyWatchers(address, message);
             }
         }
 
         return res.status(200).json({ message: 'Handled Solana webhook' });
     } catch (err) {
         console.error('Error in Solana webhook:', err);
-        // Optionally, alert an admin Telegram chat (e.g., chat id 540209384)
-        sendTelegramMessage(540209384, `Error in Solana webhook:\n\n${err}`);
+        await sendTelegramMessage(540209384, err.toString());
         return res.status(500).json({ error: 'Server error' });
     }
 };
 
-// Helper function to extract impacted addresses from a Helius event
+/**
+ * Extracts impacted addresses from a Solana event.
+ * This function checks:
+ *  - evt.events.tokenTransfers (if available)
+ *  - evt.tokenTransfers (root level)
+ *  - evt.nativeTransfers (optional)
+ *
+ * All addresses are normalized to lowercase.
+ */
 function extractAddressesFromHeliusEvent(evt) {
     const addresses = new Set();
 
-    // Extract from tokenTransfers if present
+    // Check nested tokenTransfers under evt.events
     if (evt?.events?.tokenTransfers) {
         for (const t of evt.events.tokenTransfers) {
-            if (t.fromUserAccount) addresses.add(t.fromUserAccount);
-            if (t.toUserAccount) addresses.add(t.toUserAccount);
+            if (t.fromUserAccount) addresses.add(t.fromUserAccount.toLowerCase());
+            if (t.toUserAccount) addresses.add(t.toUserAccount.toLowerCase());
         }
     }
-
+    // Check root-level tokenTransfers
+    if (evt?.tokenTransfers) {
+        for (const t of evt.tokenTransfers) {
+            if (t.fromUserAccount) addresses.add(t.fromUserAccount.toLowerCase());
+            if (t.toUserAccount) addresses.add(t.toUserAccount.toLowerCase());
+        }
+    }
+    // Also check nativeTransfers (if you want to notify on SOL movements)
+    if (evt?.nativeTransfers) {
+        for (const nt of evt.nativeTransfers) {
+            if (nt.fromUserAccount) addresses.add(nt.fromUserAccount.toLowerCase());
+            if (nt.toUserAccount) addresses.add(nt.toUserAccount.toLowerCase());
+        }
+    }
     return [...addresses];
 }
 
-// Telegram sendMessage helper
+/**
+ * Look up watchers for a given Solana address in the "solana_wallets" table,
+ * and send them the specified Telegram message.
+ */
+async function notifyWatchers(address, msg) {
+    // Assuming the DB stores Solana addresses in lowercase
+    const { data: watchers, error } = await supabase
+        .from('solana_wallets')
+        .select('*')
+        .eq('sol_address', address);
+
+    if (error) {
+        console.error('Supabase error:', error);
+        return;
+    }
+
+    if (watchers && watchers.length > 0) {
+        for (const w of watchers) {
+            const chatId = w.telegram_chat_id;
+            await sendTelegramMessage(chatId, msg);
+        }
+    }
+}
+
+/**
+ * Helper to send a message via Telegram with error handling for non-200 responses.
+ */
 async function sendTelegramMessage(chatId, message) {
     const token = process.env.TG_TOKEN;
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
-    const resp = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: chatId,
-            text: message,
-        }),
-    });
-
-    return resp.json();
+    try {
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: message,
+            }),
+        });
+        const result = await resp.json();
+        if (!resp.ok) {
+            console.error(`Telegram API responded with status ${resp.status}:`, result);
+        }
+        return result;
+    } catch (error) {
+        console.error('Error sending Telegram message:', error);
+        return { error: error.message };
+    }
 }
