@@ -23,7 +23,7 @@ async function createCoinbaseCharge(telegramChatId, plan) {
             'Accept': 'application/json',
             'X-CC-Version': '2018-03-22'
         },
-        body: JSON.stringify({ charge: chargeData })
+        body: JSON.stringify(chargeData)
     });
 
     const data = await response.json();
