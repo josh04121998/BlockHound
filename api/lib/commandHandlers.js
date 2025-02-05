@@ -3,6 +3,7 @@ const supabase = require('./supabaseClient');
 const { sendTelegramMessage } = require('./telegram');
 const { isValidEthAddress, isValidSolAddress } = require('./validators');
 const { trackSolanaAddress, untrackSolanaAddress } = require('../solanaWebhookManager');
+const { createCoinbaseCharge } = require('./coinbaseCommerce');
 
 async function handleStart(chatId) {
     const message = [
