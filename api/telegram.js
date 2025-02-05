@@ -8,7 +8,7 @@ const {
     handleUntrackEth,
     handleUnknownCommand,
     handleSubscribeBasic,
-} = require('../../lib/commandHandlers');
+} = require('./lib/commandHandlers');
 
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
