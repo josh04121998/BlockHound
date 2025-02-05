@@ -18,7 +18,7 @@ async function createCoinbaseCharge(telegramChatId, plan) {
         headers: {
             'Content-Type': 'application/json',
             'X-CC-Api-Key': process.env.COINBASE_COMMERCE_API_KEY,
-            'X-CC-Version': '2018-03-22'
+            'Accept': 'application/json'
         },
         body: JSON.stringify({ charge: chargeData })
     });
