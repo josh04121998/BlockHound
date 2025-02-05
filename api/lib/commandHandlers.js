@@ -2,7 +2,6 @@
 const supabase = require('./supabaseClient');
 const { sendTelegramMessage } = require('./telegram');
 const { isValidEthAddress, isValidSolAddress } = require('./validators');
-const initializeMoralis = require('../initializeMoralis');
 const { trackSolanaAddress, untrackSolanaAddress } = require('../solanaWebhookManager');
 
 async function handleStart(chatId) {
@@ -11,15 +10,89 @@ async function handleStart(chatId) {
         '/track <eth_wallet> – Track an Ethereum address',
         '/untrack <eth_wallet> – Untrack an Ethereum address',
         '/tracksol <sol_address> – Track a Solana address',
-        '/untracksol <sol_address> – Untrack a Solana address'
+        '/untracksol <sol_address> – Untrack a Solana address',
+        '/subscribe basic – Purchase extra address tracking ($0.99)'
     ].join('\n');
     await sendTelegramMessage(chatId, message);
+}
+
+async function handleTrackEth(chatId, walletAddress) {
+    if (!isValidEthAddress(walletAddress)) {
+        await sendTelegramMessage(chatId, 'Invalid Ethereum address.');
+        return;
+    }
+
+    // Check how many Ethereum addresses the user is tracking.
+    const { data: existingRecords, error: selectError } = await supabase
+        .from('wallets')
+        .select('*')
+        .eq('telegram_chat_id', chatId)
+        .eq('wallet_type', 'eth');
+
+    if (selectError) {
+        console.error('Select error:', selectError);
+        await sendTelegramMessage(chatId, 'Database error. Please try again later.');
+        return;
+    }
+
+    // Free limit is 1 address.
+    if (existingRecords && existingRecords.length >= 1) {
+        // Check for an active paid subscription for Ethereum.
+        const { data: subs, error: subError } = await supabase
+            .from('subscriptions')
+            .select('*')
+            .eq('telegram_chat_id', chatId)
+            .eq('plan', 'basic')
+            .eq('paid', true);
+
+        if (subError || !subs || subs.length === 0) {
+            await sendTelegramMessage(
+                chatId,
+                'You have reached your free Ethereum address tracking limit. Please subscribe using /subscribe basic to add another.'
+            );
+            return;
+        }
+    }
+
+    // (Insert your logic to add the Ethereum address to your DB and any necessary external service.)
+    await sendTelegramMessage(chatId, `Wallet ${walletAddress} is now being tracked!`);
 }
 
 async function handleTrackSol(chatId, solAddress) {
     if (!isValidSolAddress(solAddress)) {
         await sendTelegramMessage(chatId, 'Invalid Solana address.');
         return;
+    }
+
+    // Check how many Solana addresses the user is tracking.
+    const { data: existingRecords, error: selectError } = await supabase
+        .from('solana_wallets')
+        .select('*')
+        .eq('telegram_chat_id', chatId);
+
+    if (selectError) {
+        console.error('Select error:', selectError);
+        await sendTelegramMessage(chatId, 'Database error. Please try again later.');
+        return;
+    }
+
+    // Free limit is 1 address.
+    if (existingRecords && existingRecords.length >= 1) {
+        // Check for an active paid subscription for Solana.
+        const { data: subs, error: subError } = await supabase
+            .from('subscriptions')
+            .select('*')
+            .eq('telegram_chat_id', chatId)
+            .eq('plan', 'basic')
+            .eq('paid', true);
+
+        if (subError || !subs || subs.length === 0) {
+            await sendTelegramMessage(
+                chatId,
+                'You have reached your free Solana address tracking limit. Please subscribe using /subscribe basic to add another.'
+            );
+            return;
+        }
     }
 
     try {
@@ -33,9 +106,52 @@ async function handleTrackSol(chatId, solAddress) {
         }
     } catch (err) {
         console.error('Error in handleTrackSol:', err);
-        await sendTelegramMessage(540209384, err.toString());
         await sendTelegramMessage(chatId, 'Failed to track Solana address. Please try again.');
     }
+}
+
+async function handleSubscribeBasic(chatId) {
+    // Create a Coinbase Commerce charge for a subscription.
+    try {
+        const charge = await createCoinbaseCharge(chatId, 'basic');
+        if (charge && charge.data && charge.data.hosted_url) {
+            await sendTelegramMessage(
+                chatId,
+                `Please complete your purchase for the Basic subscription ($0.99) here: ${charge.data.hosted_url}`
+            );
+        } else {
+            await sendTelegramMessage(chatId, 'Error creating the purchase. Please try again later.');
+        }
+    } catch (err) {
+        console.error('Error in handleSubscribeBasic:', err);
+        await sendTelegramMessage(chatId, 'Error processing your purchase. Please try again later.');
+    }
+}
+
+async function handleUntrackEth(chatId, walletAddress) {
+    if (!isValidEthAddress(walletAddress)) {
+        await sendTelegramMessage(chatId, 'Invalid Ethereum address.');
+        return;
+    }
+
+    // Delete the Ethereum address record from the "wallets" table.
+    const { data, error } = await supabase
+        .from('wallets')
+        .delete()
+        .match({ telegram_chat_id: chatId, wallet_address: walletAddress, wallet_type: 'eth' });
+
+    if (error) {
+        console.error('Error removing Ethereum address:', error);
+        await sendTelegramMessage(chatId, 'Error removing Ethereum address. Please try again later.');
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        await sendTelegramMessage(chatId, `You are not tracking ${walletAddress}. Nothing to untrack.`);
+        return;
+    }
+
+    await sendTelegramMessage(chatId, `Wallet ${walletAddress} has been removed from tracking.`);
 }
 
 async function handleUntrackSol(chatId, solAddress) {
@@ -45,122 +161,29 @@ async function handleUntrackSol(chatId, solAddress) {
     }
 
     const result = await untrackSolanaAddress(chatId, solAddress);
-    if (!result.success) {
-        if (result.reason === 'not_tracked') {
-            await sendTelegramMessage(chatId, `You are not tracking ${solAddress}.`);
-        } else {
-            await sendTelegramMessage(chatId, `Error untracking address: ${result.reason}`);
-        }
+    if (result.success) {
+        await sendTelegramMessage(chatId, `Solana address ${solAddress} has been removed from tracking.`);
     } else {
-        await sendTelegramMessage(chatId, `Solana address ${solAddress} was removed from tracking.`);
-    }
-}
-
-async function handleTrackEth(chatId, walletAddress) {
-    if (!isValidEthAddress(walletAddress)) {
-        await sendTelegramMessage(chatId, 'Invalid Ethereum address.');
-        return;
+        await sendTelegramMessage(chatId, 'Unknown error tracking address.');
     }
 
-    // Check if user already tracks this address.
-    const { data: existingRecords, error: selectError } = await supabase
-        .from('wallets')
-        .select('*')
-        .eq('telegram_chat_id', chatId)
-        .eq('wallet_address', walletAddress);
-
-    if (selectError) {
-        console.error('Select error:', selectError);
-        await sendTelegramMessage(chatId, 'Database error. Please try again later.');
-        return;
-    }
-
-    if (existingRecords && existingRecords.length > 0) {
-        await sendTelegramMessage(chatId, `You are already tracking wallet ${walletAddress}.`);
-        return;
-    }
-
-    // Insert into Supabase.
-    const { error: insertError } = await supabase
-        .from('wallets')
-        .insert([{ telegram_chat_id: chatId, wallet_address: walletAddress }]);
-
-    if (insertError) {
-        console.error('Insert error:', insertError);
-        await sendTelegramMessage(chatId, 'Error saving address. Please try again.');
-        return;
-    }
-
-    // Add to Moralis stream.
-    try {
-        const Moralis = await initializeMoralis();
-        await Moralis.Streams.addAddress({
-            id: '470d004e-187c-4f9b-9366-61282d9aeb28', // Your stream ID
-            address: [walletAddress],
-        });
-    } catch (moralisError) {
-        console.error('Moralis error adding address:', moralisError);
-        await supabase
-            .from('wallets')
-            .delete()
-            .match({ telegram_chat_id: chatId, wallet_address: walletAddress });
-        await sendTelegramMessage(chatId, 'Error adding to Moralis stream. Please try again later.');
-        await sendTelegramMessage(540209384, moralisError.toString());
-        return;
-    }
-
-    await sendTelegramMessage(chatId, `Wallet ${walletAddress} is now being tracked!`);
-}
-
-async function handleUntrackEth(chatId, walletAddress) {
-    if (!isValidEthAddress(walletAddress)) {
-        await sendTelegramMessage(chatId, 'Invalid Ethereum address.');
-        return;
-    }
-
-    const { data: existingRecords, error: selectError } = await supabase
-        .from('wallets')
-        .select('*')
-        .eq('telegram_chat_id', chatId)
-        .eq('wallet_address', walletAddress);
-
-    if (selectError) {
-        console.error('Select error:', selectError);
-        await sendTelegramMessage(chatId, 'Database error. Please try again later.');
-        return;
-    }
-
-    if (!existingRecords || existingRecords.length === 0) {
-        await sendTelegramMessage(chatId, `You are not tracking ${walletAddress}. Nothing to untrack.`);
-        return;
-    }
-
-    const { error: deleteError } = await supabase
-        .from('wallets')
-        .delete()
-        .match({ telegram_chat_id: chatId, wallet_address: walletAddress });
-
-    if (deleteError) {
-        console.error('Delete error:', deleteError);
-        await sendTelegramMessage(chatId, 'Error removing address. Please try again.');
-        return;
-    }
-
-    await sendTelegramMessage(chatId, `Wallet ${walletAddress} was removed from tracking.`);
+    await sendTelegramMessage(chatId, `Solana address ${solAddress} has been removed from tracking.`);
 }
 
 async function handleUnknownCommand(chatId) {
     await sendTelegramMessage(
         chatId,
-        'Unknown command. Try /start, /track, /untrack, /tracksol, or /untracksol.'
+        'Unknown command. Try /start, /track, /untrack, /tracksol, /untracksol, or /subscribe basic.'
     );
 }
 
 module.exports = {
     handleStart,
-    handleTrackSol,
-    handleUntrackSol,
     handleTrackEth,
+    handleTrackSol,
+    handleSubscribeBasic,
     handleUntrackEth,
+    handleUntrackSol,
     handleUnknownCommand,
+    // Include other handlers (such as untrack) as needed.
 };

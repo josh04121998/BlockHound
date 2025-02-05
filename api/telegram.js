@@ -7,6 +7,7 @@ const {
     handleTrackEth,
     handleUntrackEth,
     handleUnknownCommand,
+    handleSubscribeBasic,
 } = require('../../lib/commandHandlers');
 
 module.exports = async (req, res) => {
@@ -55,6 +56,8 @@ module.exports = async (req, res) => {
                     const walletAddress = parts[1];
                     await handleUntrackEth(chatId, walletAddress);
                 }
+            } else if (text.startsWith('/subscribe basic')) {
+                await handleSubscribeBasic(chatId);
             } else {
                 await handleUnknownCommand(chatId);
             }

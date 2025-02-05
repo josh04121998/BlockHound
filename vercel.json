@@ -36,6 +36,10 @@
       "dest": "/api/solana-webhook.js"
     },
     {
+      "src": "/api/coinbase-webhook",
+      "dest": "/api/coinbase-webhook.js"
+    },
+    {
       "src": "/api/telegram",
       "dest": "/api/telegram.js"
     },
