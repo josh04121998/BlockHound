@@ -49,20 +49,12 @@ module.exports = async (req, res) => {
             const message = `
 New Solana Event
 
-Who & What:
-Account ${feePayer}.
+Description: ${description}
+Timestamp: ${formattedTimestamp}
 
 Transaction Identification:
-Signature: ${signature}
 Solscan Link: ${solscanUrl}
 
-Monetary Details:
-Swapped Out: ${swappedOutDetail}
-Swapped In: ${swappedInDetail}
-
-Additional Info:
-Timestamp: ${formattedTimestamp}
-Description: ${description}
       `.trim();
 
             // Extract impacted addresses from the event payload.
@@ -129,7 +121,7 @@ async function notifyWatchers(address, msg) {
         .from('solana_wallets')
         .select('*')
         .eq('sol_address', address);
-
+    console.log("checked superbase " + watchers)
     if (error) {
         console.error('Supabase error:', error);
         return;
