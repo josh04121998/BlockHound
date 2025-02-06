@@ -13,7 +13,11 @@ module.exports = async (req, res) => {
     // Process a confirmed charge event.
     if (event && event.event && event.event.type === "charge:confirmed") {
         const metadata = event.event.data.metadata;
-        const telegramChatId = metadata.telegram_chat_id;
+
+        // Convert the telegram_chat_id to an integer and then back to a string,
+        // so that "540209384.0" becomes "540209384".
+        const rawChatId = metadata.telegram_chat_id;
+        const telegramChatId = String(parseInt(rawChatId, 10));
         const plan = metadata.plan; // should be 'basic'
 
         // Upsert a subscription record.
@@ -24,7 +28,8 @@ module.exports = async (req, res) => {
                 plan: plan,
                 paid: true,
                 purchased_at: new Date().toISOString(),
-            }, { onConflict: ['telegram_chat_id', 'plan'] });
+                expiration_date: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000).toISOString() // one month later
+            }, { onConflict: ['telegram_chat_id'] });
 
         if (error) {
             console.error('Error updating subscription:', error);
