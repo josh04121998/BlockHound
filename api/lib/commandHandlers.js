@@ -27,8 +27,7 @@ async function handleTrackEth(chatId, walletAddress) {
     const { data: existingRecords, error: selectError } = await supabase
         .from('wallets')
         .select('*')
-        .eq('telegram_chat_id', chatId)
-        .eq('wallet_type', 'eth');
+        .eq('telegram_chat_id', chatId);
 
     if (selectError) {
         console.error('Select error:', selectError);
@@ -44,7 +43,8 @@ async function handleTrackEth(chatId, walletAddress) {
             .select('*')
             .eq('telegram_chat_id', chatId)
             .eq('plan', 'basic')
-            .eq('paid', true);
+            .eq('paid', true)
+            .gt('expiration_date', new Date().toISOString());
 
         if (subError || !subs || subs.length === 0) {
             await sendTelegramMessage(
@@ -85,7 +85,8 @@ async function handleTrackSol(chatId, solAddress) {
             .select('*')
             .eq('telegram_chat_id', chatId)
             .eq('plan', 'basic')
-            .eq('paid', true);
+            .eq('paid', true)
+            .gt('expiration_date', new Date().toISOString());
 
         if (subError || !subs || subs.length === 0) {
             await sendTelegramMessage(
@@ -139,7 +140,7 @@ async function handleUntrackEth(chatId, walletAddress) {
     const { data, error } = await supabase
         .from('wallets')
         .delete()
-        .match({ telegram_chat_id: chatId, wallet_address: walletAddress, wallet_type: 'eth' });
+        .match({ telegram_chat_id: chatId, wallet_address: walletAddress });
 
     if (error) {
         console.error('Error removing Ethereum address:', error);
@@ -167,8 +168,6 @@ async function handleUntrackSol(chatId, solAddress) {
     } else {
         await sendTelegramMessage(chatId, 'Unknown error tracking address.');
     }
-
-    await sendTelegramMessage(chatId, `Solana address ${solAddress} has been removed from tracking.`);
 }
 
 async function handleUnknownCommand(chatId) {
