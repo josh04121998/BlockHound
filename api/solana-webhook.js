@@ -86,22 +86,22 @@ function extractAddressesFromHeliusEvent(evt) {
     // Check nested tokenTransfers under evt.events
     if (evt?.events?.tokenTransfers) {
         for (const t of evt.events.tokenTransfers) {
-            if (t.fromUserAccount) addresses.add(t.fromUserAccount.toLowerCase());
-            if (t.toUserAccount) addresses.add(t.toUserAccount.toLowerCase());
+            if (t.fromUserAccount) addresses.add(t.fromUserAccount);
+            if (t.toUserAccount) addresses.add(t.toUserAccount);
         }
     }
     // Check root-level tokenTransfers
     if (evt?.tokenTransfers) {
         for (const t of evt.tokenTransfers) {
-            if (t.fromUserAccount) addresses.add(t.fromUserAccount.toLowerCase());
-            if (t.toUserAccount) addresses.add(t.toUserAccount.toLowerCase());
+            if (t.fromUserAccount) addresses.add(t.fromUserAccount);
+            if (t.toUserAccount) addresses.add(t.toUserAccount);
         }
     }
     // Also check nativeTransfers (if you want to notify on SOL movements)
     if (evt?.nativeTransfers) {
         for (const nt of evt.nativeTransfers) {
-            if (nt.fromUserAccount) addresses.add(nt.fromUserAccount.toLowerCase());
-            if (nt.toUserAccount) addresses.add(nt.toUserAccount.toLowerCase());
+            if (nt.fromUserAccount) addresses.add(nt.fromUserAccount);
+            if (nt.toUserAccount) addresses.add(nt.toUserAccount);
         }
     }
     return [...addresses];

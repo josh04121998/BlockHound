@@ -30,15 +30,15 @@ module.exports = async (req, res) => {
 
         for (const transfer of erc20Transfers) {
             // Normalize addresses to lowercase for consistent comparisons
-            const fromAddr = transfer.from?.toLowerCase();
-            const toAddr = transfer.to?.toLowerCase();
+            const fromAddr = transfer.from;
+            const toAddr = transfer.to;
             const tokenName = transfer.tokenName || 'Unknown Token';
             const tokenSymbol = transfer.tokenSymbol || '???';
             const txHash = transfer.transactionHash;
             const value = transfer.valueWithDecimals || transfer.value || '???';
             // Normalize triggered_by array if present
             const triggeredBy = transfer.triggered_by
-                ? transfer.triggered_by.map(addr => addr.toLowerCase())
+                ? transfer.triggered_by.map(addr => addr)
                 : null;
 
             // Build a message including a link to Etherscan
