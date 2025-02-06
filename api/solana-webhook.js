@@ -30,8 +30,6 @@ module.exports = async (req, res) => {
                 : 'N/A';
             const feePayer = evt.feePayer || 'N/A';
             const signature = evt.signature || 'N/A';
-            const fee = evt.fee || 'N/A';
-            const slot = evt.slot || 'N/A';
             const description = evt.description || 'N/A';
             console.log('got most of the data ------- Get token transfers')
             // Determine swapped-out and swapped-in details (if tokenTransfers is present)
@@ -49,10 +47,10 @@ module.exports = async (req, res) => {
             }
 
             const message = `
-New Solana Swap Event
+New Solana Event
 
 Who & What:
-Account ${feePayer} executed a swap on Raydium.
+Account ${feePayer}.
 
 Transaction Identification:
 Signature: ${signature}
@@ -61,10 +59,8 @@ Solscan Link: ${solscanUrl}
 Monetary Details:
 Swapped Out: ${swappedOutDetail}
 Swapped In: ${swappedInDetail}
-Fees Paid: ${fee} lamports
 
 Additional Info:
-Slot: ${slot}
 Timestamp: ${formattedTimestamp}
 Description: ${description}
       `.trim();
@@ -156,6 +152,7 @@ async function sendTelegramMessage(chatId, message) {
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
     try {
+        console.log("sol message " + message)
         const resp = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -165,6 +162,7 @@ async function sendTelegramMessage(chatId, message) {
             }),
         });
         const result = await resp.json();
+        console.log("sol logs " + result)
         if (!resp.ok) {
             console.error(`Telegram API responded with status ${resp.status}:`, result);
         }
