@@ -48,9 +48,9 @@ module.exports = async (req, res) => {
 New Solana Event
 
 Description: ${description}
+
 Timestamp: ${formattedTimestamp}
 
-Transaction Identification:
 Solscan Link: ${solscanUrl}
 
       `.trim();
