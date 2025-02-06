@@ -1,7 +1,7 @@
 // pages/api/solana-webhook.js
 
 const { createClient } = require('@supabase/supabase-js');
-
+const { sendTelegramMessage } = require('./lib/telegram');
 // Initialize Supabase
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -28,10 +28,8 @@ module.exports = async (req, res) => {
             const formattedTimestamp = evt.timestamp
                 ? new Date(evt.timestamp * 1000).toLocaleString()
                 : 'N/A';
-            const feePayer = evt.feePayer || 'N/A';
-            const signature = evt.signature || 'N/A';
             const description = evt.description || 'N/A';
-            console.log('got most of the data ------- Get token transfers')
+
             // Determine swapped-out and swapped-in details (if tokenTransfers is present)
             let swappedOutDetail = 'N/A';
             let swappedInDetail = 'N/A';
@@ -59,10 +57,8 @@ Solscan Link: ${solscanUrl}
 
             // Extract impacted addresses from the event payload.
             const impactedAddresses = extractAddressesFromHeliusEvent(evt);
-            console.log('getting impacted addy ' + impactedAddresses)
             // Notify watchers for each impacted address.
             for (const address of impactedAddresses) {
-                console.log('notifying ' + address)
                 await notifyWatchers(address, message);
             }
         }
@@ -121,7 +117,7 @@ async function notifyWatchers(address, msg) {
         .from('solana_wallets')
         .select('*')
         .eq('sol_address', address);
-    console.log("checked superbase " + watchers)
+    console.log("Checked Supabase, watchers returned:", JSON.stringify(watchers, null, 2));
     if (error) {
         console.error('Supabase error:', error);
         return;
@@ -130,37 +126,8 @@ async function notifyWatchers(address, msg) {
     if (watchers && watchers.length > 0) {
         for (const w of watchers) {
             const chatId = w.telegram_chat_id;
-            console.error('notify' + chatId + 'with message ' + msg);
-            await sendTelegramMessage(chatId, msg);
+            const result = await sendTelegramMessage(chatId, msg);
+            console.log("Telegram send result:", JSON.stringify(result, null, 2));
         }
-    }
-}
-
-/**
- * Helper to send a message via Telegram with error handling for non-200 responses.
- */
-async function sendTelegramMessage(chatId, message) {
-    const token = process.env.TG_TOKEN;
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
-
-    try {
-        console.log("sol message " + message)
-        const resp = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: message,
-            }),
-        });
-        const result = await resp.json();
-        console.log("sol logs " + result)
-        if (!resp.ok) {
-            console.error(`Telegram API responded with status ${resp.status}:`, result);
-        }
-        return result;
-    } catch (error) {
-        console.error('Error sending Telegram message:', error);
-        return { error: error.message };
     }
 }
