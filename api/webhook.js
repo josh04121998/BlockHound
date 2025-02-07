@@ -37,33 +37,31 @@ module.exports = async (req, res) => {
             const txHash = transfer.transactionHash;
             const value = transfer.valueWithDecimals || transfer.value || '???';
             // Normalize triggered_by array if present
-            const triggeredBy = transfer.triggered_by
+            const triggeredByNormalized = transfer.triggered_by
                 ? transfer.triggered_by.map(addr => addr)
                 : null;
 
             // Build a message including a link to Etherscan
             const etherscanLink = `https://etherscan.io/tx/${txHash}`;
-            const msg = `ERC20 Transfer
+            const msg = `New ERC20 Event
 Token: ${tokenName} (${tokenSymbol})
 Amount: ${value}
 From: ${fromAddr}
 To: ${toAddr}
 Tx: ${etherscanLink}`;
 
-            // Only add a notification for an address if either:
-            // • The transfer has no triggered_by info
-            // • OR the triggered_by array includes that address.
-            if (fromAddr && (!triggeredBy || triggeredBy.includes(fromAddr))) {
-                notifications.push({ notifyAddress: fromAddr, msg });
+            // Push notifications without checking triggered_by here.
+            if (fromAddr) {
+                notifications.push({ notifyAddress: fromAddr, msg, triggeredBy: triggeredByNormalized });
             }
-            if (toAddr && toAddr !== fromAddr && (!triggeredBy || triggeredBy.includes(toAddr))) {
-                notifications.push({ notifyAddress: toAddr, msg });
+            if (toAddr && toAddr !== fromAddr) {
+                notifications.push({ notifyAddress: toAddr, msg, triggeredBy: triggeredByNormalized });
             }
         }
 
         // 2. For each notification, look up watchers and send them the message
         for (const notification of notifications) {
-            await notifyWatchers(notification.notifyAddress, notification.msg);
+            await notifyWatchers(notification.notifyAddress, notification.msg, notification.triggeredBy);
         }
 
         // 3. Respond OK
@@ -76,7 +74,7 @@ Tx: ${etherscanLink}`;
 };
 
 // Helper to look up watchers (from the "wallets" table) and send them a Telegram message
-async function notifyWatchers(address, msg) {
+async function notifyWatchers(address, msg, triggeredBy) {
     // Use case-insensitive matching (ilike) to look up the wallet address
     const { data: wallets, error } = await supabase
         .from('wallets')
@@ -91,6 +89,11 @@ async function notifyWatchers(address, msg) {
     if (wallets && wallets.length > 0) {
         for (const w of wallets) {
             const chatId = w.telegram_chat_id;
+            // If a triggeredBy array exists, only send if the watched address is in triggeredBy.
+            if (triggeredBy && !triggeredBy.includes(address)) {
+                console.log(`Skipping notification for ${address} because it is not in triggered_by`);
+                continue;
+            }
             await sendTelegramMessage(chatId, msg);
         }
     }
