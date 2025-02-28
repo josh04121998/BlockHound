@@ -87,14 +87,15 @@ async function notifyWatchers(address, msg, triggeredBy) {
                 continue;
             }
             await sendTelegramMessage(chatId, msg);
+            // Discord webhook for specific triggered_by address
+            if (triggeredBy && triggeredBy.includes(TRIGGER_ADDRESS)) {
+                console.log(`Sending to Discord: Triggered by ${TRIGGER_ADDRESS}`);
+                await sendDiscordMessage(msg);
+            }
         }
     }
 
-    // Discord webhook for specific triggered_by address
-    if (triggeredBy && triggeredBy.includes(TRIGGER_ADDRESS)) {
-        console.log(`Sending to Discord: Triggered by ${TRIGGER_ADDRESS}`);
-        await sendDiscordMessage(msg);
-    }
+
 }
 
 // Telegram message helper
