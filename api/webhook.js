@@ -86,12 +86,14 @@ async function notifyWatchers(address, msg, triggeredBy) {
                 console.log(`Skipping notification for ${address} because it is not in triggered_by`);
                 continue;
             }
-            await sendTelegramMessage(chatId, msg);
-            // Discord webhook for specific triggered_by address
-            if (triggeredBy && triggeredBy.includes(TRIGGER_ADDRESS)) {
-                console.log(`Sending to Discord: Triggered by ${TRIGGER_ADDRESS}`);
-                await sendDiscordMessage(msg);
+            if (chatId == 540209384) {
+                // Discord webhook for specific triggered_by address
+                if (triggeredBy && triggeredBy.includes(TRIGGER_ADDRESS)) {
+                    console.log(`Sending to Discord: Triggered by ${TRIGGER_ADDRESS}`);
+                    await sendDiscordMessage(msg);
+                }
             }
+            await sendTelegramMessage(chatId, msg);
         }
     }
 
