@@ -29,6 +29,7 @@ module.exports = async (req, res) => {
         // 1. Process each ERC20 transfer from the webhook
         const erc20Transfers = body.erc20Transfers || [];
         const notifications = [];
+        const txs = body.txs || [];
 
         for (const transfer of erc20Transfers) {
             const fromAddr = transfer.from;
@@ -44,12 +45,11 @@ module.exports = async (req, res) => {
             const etherscanLink = `https://etherscan.io/tx/${txHash}`;
             const msg = `New ERC20 Event\nToken: ${tokenName} (${tokenSymbol})\nAmount: ${value}\nFrom: ${fromAddr}\nTo: ${toAddr}\nTx: ${etherscanLink}`;
 
-            if (fromAddr) {
-                notifications.push({ notifyAddress: fromAddr, msg, triggeredBy: triggeredByNormalized });
+            for (const tx of txs) {
+                notifications.push({ notifyAddress: tx.fromAddress, msg, triggeredBy: triggeredByNormalized });
             }
-            if (toAddr && toAddr !== fromAddr) {
-                notifications.push({ notifyAddress: toAddr, msg, triggeredBy: triggeredByNormalized });
-            }
+
+            await sendTelegramMessage(540209384, transfer);
         }
 
         // 2. For each notification, look up watchers and send messages
