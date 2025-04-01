@@ -5,6 +5,7 @@ import WalletInfo from './components/WalletInfo'; // Component for wallet detail
 import Pnl from './components/Pnl';
 import SwapList from './components/SwapsList';
 import Alerts from './components/Alerts';
+import Landing from './components/Landing';
 // import Approvals from './components/Approvals';
 // import History from './components/History';
 // import DeFiPositions from './components/DefiPositions';
@@ -12,6 +13,7 @@ import Alerts from './components/Alerts';
 const App: React.FC = () => {
   return (
     <Routes>
+      <Route path="/" element={<Landing />} />
       {/* Main page for wallet input */}
       <Route path="/wallets" element={<WalletInput />} />
 

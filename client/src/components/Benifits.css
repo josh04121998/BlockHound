@@ -1,0 +1,62 @@
+/* Benefits Section */
+.benefits {
+    padding: 2rem 0;
+    text-align: center;
+  }
+  
+  .benefits h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #0a0b1a;
+    margin-bottom: 2rem;
+  }
+  
+  .benefits-cards-container {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 20px !important;
+    flex-wrap: wrap !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Individual card styling */
+  .card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    width: 250px;           /* Fixed width that fits well */
+    text-align: center;
+    transition: transform 0.2s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0a0b1a;
+    margin-bottom: 1rem;
+  }
+  
+  .card-text {
+    font-size: 1rem;
+    color: #4b5563;
+  }
+  
+  /* Responsive Design for Smaller Screens */
+  @media (max-width: 768px) {
+    .benefits-cards-container {
+      flex-direction: column; /* Stacks cards vertically */
+      align-items: center;    /* Centers them when stacked */
+    }
+    .card {
+      width: 100%;           /* Full width on small screens */
+      max-width: 300px;      /* Limits width for readability */
+      margin-bottom: 20px;   /* Adds space between stacked cards */
+    }
+  }

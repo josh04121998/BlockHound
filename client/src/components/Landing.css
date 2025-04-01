@@ -1,0 +1,177 @@
+/* Header */
+.navbar {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dcdcdc;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  font-family: Arial, sans-serif;
+}
+
+.navbar div {
+  display: flex;
+  gap: 15px; /* Space between buttons */
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-bar {
+  background-color: #ffffff;
+  border-radius: 30px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  width: 200px;
+  border: none;
+}
+
+.btn-join {
+  background-color: #0052ff;
+  color: #ffffff;
+  border-radius: 30px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.btn.btn-primary {
+  background-color: #0052ff;
+  color: #ffffff;
+  padding: 0.5rem 1.5rem;
+  border-radius: 30px;
+  text-decoration: none;
+}
+
+/* Main Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+  background-color: #f9fafb;
+}
+
+/* Subtitle */
+.subtitle {
+  font-size: 1.1rem;
+  color: #6c757d;
+  text-align: center;
+  margin: 1rem 0 2rem;
+}
+
+/* Why Join Us Section */
+.why-join-us {
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.why-join-us h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #0a0b1a;
+  margin-bottom: 2rem;
+}
+
+.cards-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  width: 300px;
+  text-align: center;
+}
+
+.card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0a0b1a;
+  margin-bottom: 1rem;
+}
+
+.card p {
+  font-size: 1rem;
+  color: #4b5563;
+}
+
+/* Market Data Section */
+.market-data {
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.market-data h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #0a0b1a;
+  margin-bottom: 2rem;
+}
+
+.market-cards-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.market-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  width: 300px;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+
+  .menu {
+    display: none; /* Hide buttons on mobile */
+  }
+  .navbar {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .navbar div {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .btn.btn-primary {
+    width: 100%;
+  }
+  .search-container {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .search-bar, .btn-join {
+    width: 100%;
+  }
+  .container {
+    padding: 0 10px;
+  }
+  .why-join-us, .market-data {
+    padding: 1.5rem 0;
+  }
+  .cards-container, .market-cards-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .card, .market-card {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+}

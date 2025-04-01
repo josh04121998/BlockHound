@@ -1,0 +1,17 @@
+
+/* Responsive Design */
+@media (max-width: 768px) {
+
+    .menu {
+      display: none !important; /* Hide buttons on mobile */
+    }
+    .navbar {
+      flex-direction: column;
+      padding: 1rem;
+    }
+    .navbar div {
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+  }

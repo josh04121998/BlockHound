@@ -32,6 +32,10 @@
       "dest": "/api/webhook.js"
     },
     {
+      "src": "/api/crypto",
+      "dest": "/api/crypto.js"
+    },
+    {
       "src": "/api/solana-webhook",
       "dest": "/api/solana-webhook.js"
     },
@@ -49,6 +53,10 @@
     },
     {
       "src": "/(wallets)",
+      "dest": "/client/dist/index.html"  
+    },
+    {
+      "src": "/",
       "dest": "/client/dist/index.html"  
     },
     {
